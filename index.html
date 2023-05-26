@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>idleMinefield</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <link rel="icon" href="logosmall.png">
+</head>
+<body>
+    <script src="chs.js"></script>
+    <script src="core.js"></script>
+    <div class="bg-overlay" id="popup-optin">
+		<div class="subscribe-optin">
+			<h1>idleMinefield v0.1.2 (Beta)</h1>
+            <p> idleMinefield is an incremental game loosely based on the puzzle game "Minesweeper".</p>
+            <h4>What's new?</h4>
+            <div>
+                <button onclick="toggleChangeLog('v0.1.1')">v0.1.1 Change Log &#9660;</button>
+                <div id="v0.1.1" style="display: none">
+                  <p>- Added an Auto Seller Update</p>
+                  <p>- Fixed a Bug Preventing Reputation from Being Displayed</p>
+                </div>
+            </div> 
+            <div>
+                <button onclick="toggleChangeLog('v0.1.2')">v0.1.2 Change Log &#9660;</button>
+                <div id="v0.1.2" style="display: none">
+                  <p>- Added this Change Log</p>
+                  <p>- Removed popups when player cannot afford an upgrade (In future I will make the buttons inactive when the player cannot afford the upgrade)</p>
+                </div>
+              </div> 
+              <script>
+                function toggleChangeLog(id) {
+                  var x = document.getElementById(id);
+                  if (x.style.display === "none") {
+                    x.style.display = "block";
+                  } else {
+                    x.style.display = "none";
+                  }
+                }
+              </script>
+            <h4>How to Play - The Basics</h4>
+            <p><b>Objective:</b> The goal of the game is to uncover all the squares that do not contain mines without detonating any mines.</p>
+            <p><b>Starting the Game:</b> Click on any square in the grid to start the game.</p>
+            <p><b>Uncovering Squares:</b> If you uncover a square that doesn't contain a mine, you'll see a number. This number tells you how many mines are present in the eight squares that surround it. This information is used to deduce where mines exist in the grid.</p>
+            <p><b>Flagging Mines:</b> If you think a square contains a mine, you can right-click (or depending on the version, a long touch) to place a flag on it. This serves as a reminder that you believe a mine is there and prevents accidental clicks on that square.</p>
+            <p><b>Safe Squares:</b> If an uncovered square has a number and there are exactly that many flags surrounding it, all other adjacent squares are safe to uncover.</p>
+            <p><b>Winning and Losing:</b> The game is won when all mine squares are flagged.</p>
+            <p><b>Scoring:</b> When the game is won, the player is granted flags equal to the number of mines that were flagged. Larger sized Minefields grant more flags per mine.</p>
+            <h4>How to Play - Player Resources</h4>
+            <p><b>Flags:</b> Flags are awarded to the player when the game resets. Players are given one flag per mine flagged at the start. Later in the game, each invasion increases the flags awarded by one.</p>
+            <p><b>Mines:</b> Mines can be removed from the grid after unlocking the mine retrival upgrade. Mines can be sold for money, some groups may buy mines for more money, however selling to they might ruin your reputation.</p>
+            <p><b>Money:</b> Money is gained by selling mines, and can be used to purchase military units and upgrades.</p>
+            <p><b>Reputation:</b> Reputation is gained and lost by selling mines to various countries. Having exceptionally low or high reputation unlocks some unique upgrades.</p>
+            <p><b>Military Power:</b> Military Power is used to invade nations, giving you more land to sweep for mines (larger grid). A larger grid also retruns more mines and flags!</p>
+			<a href="#" class="optin-close">&times;</a>
+		</div>
+	</div>
+
+    <img src="logo.png" alt="Logo" class="logo" style="display: block; margin-left: auto; margin-right: auto;"> 
+    <div class="container">
+        <div id="minefield"></div>
+        <button id="reset">Reset</button>
+        <div id="score">Flags: 0</div>
+        <div id="minesRetrieved">Mines: 0</div> 
+        <div id="money">Money: 0</div> 
+        <div id="reputation">Reputation: 0</div>
+        <div id="militaryPower">Military Power: 0</div>
+
+    </div>
+
+    <div class="tab">
+        <button class="tablinks" onclick="openTab(event, 'Upgrades')">Upgrades</button>
+        <button class="tablinks" onclick="openTab(event, 'Unlocks')">Unlocks</button>
+        <button class="tablinks" onclick="openTab(event, 'Military')">Military</button>
+        <button class="tablinks" onclick="openTab(event, 'Research')">Research</button>
+      </div>
+
+<div id="Upgrades" class="tabcontent">
+    <div class="upgrades">
+    </div>
+    <div class="store">
+        <div class="upgrade" id="sweeper-upgrade-div">
+          <span class="upgrade-name">Mine Sweeper</span>
+          <span id="sweeper-owned">0</span>
+          <button id="sweeper-upgrade">Buy for <span id="sweeper-cost">1</span> flags</button>
+          <div id="text">Reveals one cell every second</div>
+        </div>
+        <div class="upgrade" id="flagger-upgrade-div">
+          <span class="upgrade-name">Mine Flagger</span>
+          <span id="flagger-owned">0</span>
+          <button id="flagger-upgrade">Buy for <span id="flagger-cost">5</span> flags</button>
+          <div id="text">Flags one mine every 5 seconds</div>
+        </div>
+        <div class="upgrade" id="retriever-upgrade-div">
+            <span class="upgrade-name">Mine Retriever</span>
+            <span id="retriever-owned">0</span>
+            <button id="retriever-upgrade">Buy for <span id="retriever-cost">20</span> flags</button>
+            <div id="text">Each retriever has a 10% chance to retrieve a flagged mine</div>
+          </div>
+      </div>
+    </div>
+    <div id="Unlocks" class="tabcontent">
+        <div class="unlocks">
+            <div class="store">
+            <div class="upgrade" id="replenisher-upgrade-div">
+                <span class="upgrade-name">Mine Replenisher</span>
+                <span id="replenisher-owned">0</span>
+                <button id="replenisher-upgrade">Buy for <span id="replenisher-cost">10</span> flags</button>
+                    <div id="text">Resets the game automatically</div>
+            </div>
+            <div class="upgrade" id="sales-upgrade-div">
+                <span class="upgrade-name">Mine Sales</span>
+                <button id="sales-upgrade">Buy for <span id="replenisher-cost">100</span> flags</button>
+                <div id="text">Become an arms dealer</div>    
+            </div>
+            <div class="upgrade" id="autoSeller-upgrade-div">
+                <span class="upgrade-name">Auto Seller</span>
+                <button id="autoSeller-upgrade">Buy for <span id="autoSeller-cost">5000</span> flags</button>
+                <label class="switch">
+                    <input type="checkbox" id="toggleSwitch">
+                    <span class="slider round"></span>
+                  </label>
+                <div id="text">Automatically sells mines for $20ea</div>    
+            </div>
+            <div class="upgrade" id="sales-div">
+                <span class="upgrade-name">Mine Sales</span>
+                <select id="country-select">
+                    <option value="NATO Member">(10) NATO Member</option>
+                    <option value="Neutral Country">(20) Neutral Country</option>
+                    <option value="Warsaw Pact Member">(30) Warsaw Pact Member</option>
+                </select>
+                <button id="sell-mines">Sell Mines</button>
+                <div id="text">Sell your retrieved mines to different countries</div>
+            </div>
+            <div class="upgrade" id="invade-div">
+                <span class="upgrade-name">Invade a Nation</span>
+                <span id="invade-owned">0</span>
+                <button id="invade-upgrade">Invade for <span id="invade-cost">1000</span> Military Power</button>
+                <div id="text">More Land, More Mines!</div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Military" class="tabcontent">
+    <div class="arms-dealing">
+        <div class="upgrade" id="infantry-div">
+            <span class="upgrade-name">Infantry Soldier</span>
+            <span id="infantry-owned">0</span>
+            <button id="infantry-upgrade">Buy for $<span id="infantry-cost">5</span></button>
+            <div id="text">Generates 1 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="mortar-div">
+            <span class="upgrade-name">Mortar Team</span>
+            <span id="mortar-owned">0</span>
+            <button id="mortar-upgrade">Buy for $<span id="mortar-cost">1100</span></button>
+            <div id="text">Generates 5 Military Power Per Second</div>
+        </div>
+        
+        <!-- Add HTML for the rest of the units -->
+        <div class="upgrade" id="engineer-div">
+            <span class="upgrade-name">Field Engineer</span>
+            <span id="engineer-owned">0</span>
+            <button id="engineer-upgrade">Buy for $<span id="engineer-cost">12000</span></button>
+            <div id="text">Generates 45 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="artillery-div">
+            <span class="upgrade-name">Artillery Platform</span>
+            <span id="artillery-owned">0</span>
+            <button id="artillery-upgrade">Buy for $<span id="artillery-cost">130000</span></button>
+            <div id="text">Generates 250 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="sniper-div">
+            <span class="upgrade-name">Sniper</span>
+            <span id="sniper-owned">0</span>
+            <button id="sniper-upgrade">Buy for $<span id="sniper-cost">1400000</span></button>
+            <div id="text">Generates 1250 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="tank-div">
+            <span class="upgrade-name">Tank</span>
+            <span id="tank-owned">0</span>
+            <button id="tank-upgrade">Buy for $<span id="tank-cost">20000000</span></button>
+            <div id="text">Generates 7500 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="bomber-div">
+            <span class="upgrade-name">Bomber</span>
+            <span id="bomber-owned">0</span>
+            <button id="bomber-upgrade">Buy for $<span id="bomber-cost">330000000</span></button>
+            <div id="text">Generates 40000 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="spy-div">
+            <span class="upgrade-name">Spy</span>
+            <span id="spy-owned">0</span>
+            <button id="spy-upgrade">Buy for $<span id="spy-cost">5100000000</span></button>
+            <div id="text">Generates 250000 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="jet-div">
+            <span class="upgrade-name">Fighter Jet</span>
+            <span id="jet-owned">0</span>
+            <button id="jet-upgrade">Buy for $<span id="jet-cost">75000000000</span></button>
+            <div id="text">Generates 1500000 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="stealth-div">
+            <span class="upgrade-name">Stealth Aircraft</span>
+            <span id="stealth-owned">0</span>
+            <button id="stealth-upgrade">Buy for $<span id="stealth-cost">1000000000000</span></button>
+            <div id="text">Generates 10000000 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="emp-div">
+            <span class="upgrade-name">EMP Device</span>
+            <span id="emp-owned">0</span>
+            <button id="emp-upgrade">Buy for $<span id="emp-cost">14000000000000</span></button>
+            <div id="text">Generates 60000000 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="cyber-div">
+            <span class="upgrade-name">Cyber Warfare Unit</span>
+            <span id="cyber-owned">0</span>
+            <button id="cyber-upgrade">Buy for $<span id="cyber-cost">170000000000000</span></button>
+            <div id="text">Generates 400000000 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="decoy-div">
+            <span class="upgrade-name">Holographic Decoy Units</span>
+            <span id="decoy-owned">0</span>
+            <button id="decoy-upgrade">Buy for $<span id="decoy-cost">130000</span></button>
+            <div id="text">Generates 400 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="helicopter-div">
+            <span class="upgrade-name">Attack Helicopters</span>
+            <span id="helicopter-owned">0</span>
+            <button id="helicopter-upgrade">Buy for $<span id="helicopter-cost">1400000</span></button>
+            <div id="text">Generates 2000 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="submarine-div">
+            <span class="upgrade-name">Submarine</span>
+            <span id="submarine-owned">0</span>
+            <button id="submarine-upgrade">Buy for $<span id="submarine-cost">20000000</span></button>
+            <div id="text">Generates 12000 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="droid-div">
+            <span class="upgrade-name">Peacekeeper Droid</span>
+            <span id="droid-owned">0</span>
+            <button id="droid-upgrade">Buy for $<span id="droid-cost">330000000</span></button>
+            <div id="text">Generates 60000 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="shield-div">
+            <span class="upgrade-name">Shield Generator</span>
+            <span id="shield-owned">0</span>
+            <button id="shield-upgrade">Buy for $<span id="shield-cost">5100000000</span></button>
+            <div id="text">Generates 400000 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="medic-div">
+            <span class="upgrade-name">Nanobot Medics</span>
+            <span id="medic-owned">0</span>
+            <button id="medic-upgrade">Buy for $<span id="medic-cost">75000000000</span></button>
+            <div id="text">Generates 2200000 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="nuke-div">
+            <span class="upgrade-name">Nuclear Warhead</span>
+            <span id="nuke-owned">0</span>
+            <button id="nuke-upgrade">Buy for $<span id="nuke-cost">1000000000000</span></button>
+            <div id="text">Generates 15000000 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="platform-div">
+            <span class="upgrade-name">Orbital Bombardment Platforms</span>
+            <span id="platform-owned">0</span>
+            <button id="platform-upgrade">Buy for $<span id="platform-cost">14000000000000</span></button>
+            <div id="text">Generates 90000000 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="landmine-div">
+            <span class="upgrade-name">Land Mine</span>
+            <span id="landmine-owned">0</span>
+            <button id="landmine-upgrade">Buy for $<span id="landmine-cost">130000</span></button>
+            <div id="text">Generates 400 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="napalm-div">
+            <span class="upgrade-name">Napalm</span>
+            <span id="napalm-owned">0</span>
+            <button id="napalm-upgrade">Buy for $<span id="napalm-cost">1400000</span></button>
+            <div id="text">Generates 2000 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="drone-div">
+            <span class="upgrade-name">Drone</span>
+            <span id="drone-owned">0</span>
+            <button id="drone-upgrade">Buy for $<span id="drone-cost">20000000</span></button>
+            <div id="text">Generates 12000 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="child-div">
+            <span class="upgrade-name">Child Soldier</span>
+            <span id="child-owned">0</span>
+            <button id="child-upgrade">Buy for $<span id="child-cost">330000000</span></button>
+            <div id="text">Generates 60000 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="ai-div">
+            <span class="upgrade-name">Chat GPT Powered Killer Robot</span>
+            <span id="ai-owned">0</span>
+            <button id="ai-upgrade">Buy for $<span id="ai-cost">5100000000</span></button>
+            <div id="text">Generates 400000 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="mindcontrol-div">
+            <span class="upgrade-name">Mind Control Device</span>
+            <span id="mindcontrol-owned">0</span>
+            <button id="mindcontrol-upgrade">Buy for $<span id="mindcontrol-cost">75000000000</span></button>
+            <div id="text">Generates 2200000 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="covid-div">
+            <span class="upgrade-name">Weaponized COVID-19</span>
+            <span id="covid-owned">0</span>
+            <button id="covid-upgrade">Buy for $<span id="covid-cost">1000000000000</span></button>
+            <div id="text">Generates 15000000 Military Power Per Second</div>
+        </div>
+        <div class="upgrade" id="deathstar-div">
+            <span class="upgrade-name">Death Star</span>
+            <span id="deathstar-owned">0</span>
+            <button id="deathstar-upgrade">Buy for $<span id="deathstar-cost">14000000000000</span></button>
+            <div id="text">Generates 90000000 Military Power Per Second</div>
+        </div>
+    </div>
+</div>
+<div id="Research" class="tabcontent">
+    <div class="research">
+
+            <div class="upgrade" id="infantry1-div">
+                <span class="upgrade-name">Enhanced Training</span>
+                <button id="infantry1-upgrade">Buy for $<span id="infantry1-cost">4046</span></button>
+                <div id="text">Doubles Infantry Military Power Per Second</div>
+            </div>
+            <div class="upgrade" id="infantry2-div">
+                <span class="upgrade-name">Mechanical Exosuit</span>
+                <button id="infantry2-upgrade">Buy for $<span id="infantry2-cost">32919</span></button>
+                <div id="text">Doubles Infantry Military Power Per Second</div>
+            </div>
+            <div class="upgrade" id="infantry3-div">
+                <span class="upgrade-name">Super Soldier Hybrid</span>
+                <button id="infantry3-upgrade">Buy for $<span id="infantry3-cost">1083657</span></button>
+                <div id="text">Doubles Infantry Military Power Per Second</div>
+            </div>
+            <div class="upgrade" id="mortar1-div">
+                <span class="upgrade-name">Advanced Targeting</span>
+                <button id="mortar1-upgrade">Buy for $<span id="mortar1-cost">44501</span></button>
+                <div id="text">Doubles Mortar Team Military Power Per Second</div>
+            </div>
+            <div class="upgrade" id="mortar2-div">
+                <span class="upgrade-name">Extended Range</span>
+                <button id="mortar2-upgrade">Buy for $<span id="mortar2-cost">362108</span></button>
+                <div id="text">Doubles Mortar Team Military Power Per Second</div>
+            </div>
+            <div class="upgrade" id="mortar3-div">
+                <span class="upgrade-name">Autonomous Mortar System</span>
+                <button id="mortar3-upgrade">Buy for $<span id="mortar3-cost">11920232</span></button>
+                <div id="text">Doubles Mortar Team Military Power Per Second</div>
+            </div>
+            
+            <!-- Field Engineers -->
+            <div class="upgrade" id="engineer1-div">
+                <span class="upgrade-name">Faster Repair Tools</span>
+                <button id="engineer1-upgrade">Buy for $<span id="engineer1-cost">485467</span></button>
+                <div id="text">Doubles Field Engineers Military Power Per Second</div>
+            </div>
+            <div class="upgrade" id="engineer2-div">
+                <span class="upgrade-name">Combat Ready Equipment</span>
+                <button id="engineer2-upgrade">Buy for $<span id="engineer2-cost">3950274</span></button>
+                <div id="text">Doubles Field Engineers Military Power Per Second</div>
+            </div>
+            <div class="upgrade" id="engineer3-div">
+                <span class="upgrade-name">Automated Repair Drones</span>
+                <button id="engineer3-upgrade">Buy for $<span id="engineer3-cost">130038893</span></button>
+                <div id="text">Doubles Field Engineers Military Power Per Second</div>
+            </div>
+            <!-- Artillery Platforms -->
+<div class="upgrade" id="artillery1-div">
+    <span class="upgrade-name">Precision Munitions</span>
+    <button id="artillery1-upgrade">Buy for $<span id="artillery1-cost">5259225</span></button>
+    <div id="text">Doubles Artillery Platforms Military Power Per Second</div>
+</div>
+<div class="upgrade" id="artillery2-div">
+    <span class="upgrade-name">Increased Caliber</span>
+    <button id="artillery2-upgrade">Buy for $<span id="artillery2-cost">42794638</span></button>
+    <div id="text">Doubles Artillery Platforms Military Power Per Second</div>
+</div>
+<div class="upgrade" id="artillery3-div">
+    <span class="upgrade-name">Satellite Guided Artillery</span>
+    <button id="artillery3-upgrade">Buy for $<span id="artillery3-cost">1408754674</span></button>
+    <div id="text">Doubles Artillery Platforms Military Power Per Second</div>
+</div>
+
+<!-- Snipers -->
+<div class="upgrade" id="sniper1-div">
+    <span class="upgrade-name">Silenced Rifle</span>
+    <button id="sniper1-upgrade">Buy for $<span id="sniper1-cost">56637808</span></button>
+    <div id="text">Doubles Snipers Military Power Per Second</div>
+</div>
+<div class="upgrade" id="sniper2-div">
+    <span class="upgrade-name">Anti-Material Rifle</span>
+    <button id="sniper2-upgrade">Buy for $<span id="sniper2-cost">460865337</span></button>
+    <div id="text">Doubles Snipers Military Power Per Second</div>
+</div>
+<div class="upgrade" id="sniper3-div">
+    <span class="upgrade-name">Orbital Sniper Support</span>
+    <button id="sniper3-upgrade">Buy for $<span id="sniper3-cost">15171204182</span></button>
+    <div id="text">Doubles Snipers Military Power Per Second</div>
+</div>
+
+<!-- Tank -->
+<div class="upgrade" id="tank1-div">
+    <span class="upgrade-name">Reactive Armor</span>
+    <button id="tank1-upgrade">Buy for $<span id="tank1-cost">809111547</span></button>
+    <div id="text">Doubles Tank Military Power Per Second</div>
+</div>
+<div class="upgrade" id="tank2-div">
+    <span class="upgrade-name">Automated Defense System</span>
+    <button id="tank2-upgrade">Buy for $<span id="tank2-cost">6583790524</span></button>
+    <div id="text">Doubles Tank Military Power Per Second</div>
+</div>
+<div class="upgrade" id="tank3-div">
+    <span class="upgrade-name">Self-Replicating Nanobot Armor</span>
+    <button id="tank3-upgrade">Buy for $<span id="tank3-cost">216731488317</span></button>
+    <div id="text">Doubles Tank Military Power Per Second</div>
+</div>
+
+<!-- Bomber -->
+<div class="upgrade" id="bomber1-div">
+    <span class="upgrade-name">Precision Bombing</span>
+    <button id="bomber1-upgrade">Buy for $<span id="bomber1-cost">13350340528</span></button>
+    <div id="text">Doubles Bomber Military Power Per Second</div>
+</div>
+<div class="upgrade" id="bomber2-div">
+    <span class="upgrade-name">Stealth Capabilities</span>
+    <button id="bomber2-upgrade">Buy for $<span id="bomber2-cost">108632543645</span></button>
+    <div id="text">Doubles Bomber Military Power Per Second</div>
+</div>
+<div class="upgrade" id="bomber3-div">
+    <span class="upgrade-name">Autonomous Swarm Bombers</span>
+    <button id="bomber3-upgrade">Buy for $<span id="bomber3-cost">3576069557227</span></button>
+    <div id="text">Doubles Bomber Military Power Per Second</div>
+</div>
+
+<!-- Spy -->
+<div class="upgrade" id="spy1-div">
+    <span class="upgrade-name">Enhanced Covert Tools</span>
+    <button id="spy1-upgrade">Buy for $<span id="spy1-cost">206323444521</span></button>
+    <div id="text">Doubles Spy Military Power Per Second</div>
+</div>
+<div class="upgrade" id="spy2-div">
+    <span class="upgrade-name">Cybernetic Implants</span>
+    <button id="spy2-upgrade">Buy for $<span id="spy2-cost">1678866583609</span></button>
+    <div id="text">Doubles Spy Military Power Per Second</div>
+</div>
+<div class="upgrade" id="spy3-div">
+    <span class="upgrade-name">Cloaking Technology</span>
+    <button id="spy3-upgrade">Buy for $<span id="spy3-cost">55266529520782</span></button>
+    <div id="text">Doubles Spy Military Power Per Second</div>
+</div>
+
+<!-- Fighter Jet -->
+<div class="upgrade" id="jet1-div">
+    <span class="upgrade-name">Advanced Avionics</span>
+    <button id="jet1-upgrade">Buy for $<span id="jet1-cost">3034168301781</span></button>
+    <div id="text">Doubles Fighter Jet Military Power Per Second</div>
+</div>
+<div class="upgrade" id="jet2-div">
+    <span class="upgrade-name">Stealth Technology</span>
+    <button id="jet2-upgrade">Buy for $<span id="jet2-cost">24689214464842</span></button>
+    <div id="text">Doubles Fighter Jet Military Power Per Second</div>
+</div>
+<div class="upgrade" id="jet3-div">
+    <span class="upgrade-name">Hypersonic Speed</span>
+    <button id="jet3-upgrade">Buy for $<span id="jet3-cost">812743081187965</span></button>
+    <div id="text">Doubles Fighter Jet Military Power Per Second</div>
+</div>
+
+<!-- Stealth Aircraft -->
+<div class="upgrade" id="stealth1-div">
+    <span class="upgrade-name">Enhanced Stealth</span>
+    <button id="stealth1-upgrade">Buy for $<span id="stealth1-cost">40455577357079</span></button>
+    <div id="text">Doubles Stealth Aircraft Military Power Per Second</div>
+</div>
+<div class="upgrade" id="stealth2-div">
+    <span class="upgrade-name">EMP Defense</span>
+    <button id="stealth2-upgrade">Buy for $<span id="stealth2-cost">329189526197896</span></button>
+    <div id="text">Doubles Stealth Aircraft Military Power Per Second</div>
+</div>
+<div class="upgrade" id="stealth3-div">
+    <span class="upgrade-name">Quantum Cloaking</span>
+    <button id="stealth3-upgrade">Buy for $<span id="stealth3-cost">10836574415839500</span></button>
+    <div id="text">Doubles Stealth Aircraft Military Power Per Second</div>
+</div>
+
+<!-- EMP Devices -->
+<div class="upgrade" id="emp1-div">
+    <span class="upgrade-name">Increased Radius</span>
+    <button id="emp1-upgrade">Buy for $<span id="emp1-cost">566378082999107</span></button>
+    <div id="text">Doubles EMP Devices Military Power Per Second</div>
+</div>
+<div class="upgrade" id="emp2-div">
+    <span class="upgrade-name">Selective Targeting</span>
+    <button id="emp2-upgrade">Buy for $<span id="emp2-cost">4608653366770550</span></button>
+    <div id="text">Doubles EMP Devices Military Power Per Second</div>
+</div>
+<div class="upgrade" id="emp3-div">
+    <span class="upgrade-name">Global EMP</span>
+    <button id="emp3-upgrade">Buy for $<span id="emp3-cost">151712041821753000</span></button>
+    <div id="text">Doubles EMP Devices Military Power Per Second</div>
+</div>
+
+<!-- Cyber Warfare Unit -->
+<div class="upgrade" id="cyber1-div">
+    <span class="upgrade-name">Advanced Viruses</span>
+    <button id="cyber1-upgrade">Buy for $<span id="cyber1-cost">6877448150703440</span></button>
+    <div id="text">Doubles Cyber Warfare Unit Military Power Per Second</div>
+</div>
+<div class="upgrade" id="cyber2-div">
+    <span class="upgrade-name">Quantum Hacking</span>
+    <button id="cyber2-upgrade">Buy for $<span id="cyber2-cost">55962219453642300</span></button>
+    <div id="text">Doubles Cyber Warfare Unit Military Power Per Second</div>
+</div>
+<div class="upgrade" id="cyber3-div">
+    <span class="upgrade-name">AI Controlled Cyberwarfare</span>
+    <button id="cyber3-upgrade">Buy for $<span id="cyber3-cost">1842217650692720000</span></button>
+    <div id="text">Doubles Cyber Warfare Unit Military Power Per Second</div>
+</div>
+<!-- decoy Decoy Units -->
+<div class="upgrade" id="decoy1-div">
+    <span class="upgrade-name">Enhanced Projectors</span>
+    <button id="decoy1-upgrade">Buy for $<span id="decoy1-cost">100</span></button>
+    <div id="text">Doubles decoy Decoy Units Military Power Per Second</div>
+</div>
+<div class="upgrade" id="decoy2-div">
+    <span class="upgrade-name">Self-Reactive AI</span>
+    <button id="decoy2-upgrade">Buy for $<span id="decoy2-cost">100</span></button>
+    <div id="text">Doubles decoy Decoy Units Military Power Per Second</div>
+</div>
+<div class="upgrade" id="decoy3-div">
+    <span class="upgrade-name">Solid Light Constructs</span>
+    <button id="decoy3-upgrade">Buy for $<span id="decoy3-cost">100</span></button>
+    <div id="text">Doubles decoy Decoy Units Military Power Per Second</div>
+</div>
+
+<!-- Attack Helicopters -->
+<div class="upgrade" id="helicopter1-div">
+    <span class="upgrade-name">Advanced Targeting Systems</span>
+    <button id="helicopter1-upgrade">Buy for $<span id="helicopter1-cost">1000</span></button>
+    <div id="text">Doubles Attack Helicopters Military Power Per Second</div>
+</div>
+<div class="upgrade" id="helicopter2-div">
+    <span class="upgrade-name">Stealth Technology</span>
+    <button id="helicopter2-upgrade">Buy for $<span id="helicopter2-cost">1000</span></button>
+    <div id="text">Doubles Attack Helicopters Military Power Per Second</div>
+</div>
+<div class="upgrade" id="helicopter3-div">
+    <span class="upgrade-name">AI Autopilot & Defense</span>
+    <button id="helicopter3-upgrade">Buy for $<span id="helicopter3-cost">1000</span></button>
+    <div id="text">Doubles Attack Helicopters Military Power Per Second</div>
+</div>
+
+<!-- Submarine -->
+<div class="upgrade" id="submarine1-div">
+    <span class="upgrade-name">Noise Reduction Systems</span>
+    <button id="submarine1-upgrade">Buy for $<span id="submarine1-cost">10000</span></button>
+    <div id="text">Doubles Submarine Military Power Per Second</div>
+</div>
+<div class="upgrade" id="submarine2-div">
+    <span class="upgrade-name">Advanced Torpedo System</span>
+    <button id="submarine2-upgrade">Buy for $<span id="submarine2-cost">10000</span></button>
+    <div id="text">Doubles Submarine Military Power Per Second</div>
+</div>
+<div class="upgrade" id="submarine3-div">
+    <span class="upgrade-name">Stealth & nuke Capabilities</span>
+    <button id="submarine3-upgrade">Buy for $<span id="submarine3-cost">10000</span></button>
+    <div id="text">Doubles Submarine Military Power Per Second</div>
+</div>
+
+<!-- droid Droids -->
+<div class="upgrade" id="droid1-div">
+    <span class="upgrade-name">Enhanced Non-Lethal Weapons</span>
+    <button id="droid1-upgrade">Buy for $<span id="droid1-cost">100000</span></button>
+    <div id="text">Doubles droid Droids Military Power Per Second</div>
+</div>
+<div class="upgrade" id="droid2-div">
+    <span class="upgrade-name">Adaptive Learning AI</span>
+    <button id="droid2-upgrade">Buy for $<span id="droid2-cost">100000</span></button>
+    <div id="text">Doubles droid Droids Military Power Per Second</div>
+</div>
+<div class="upgrade" id="droid3-div">
+    <span class="upgrade-name">Autonomous Peacekeeping Fleet</span>
+    <button id="droid3-upgrade">Buy for $<span id="droid3-cost">100000</span></button>
+    <div id="text">Doubles droid Droids Military Power Per Second</div>
+</div>
+
+<!-- Shield Generators -->
+<div class="upgrade" id="shield1-div">
+    <span class="upgrade-name">Power Efficiency Increase</span>
+    <button id="shield1-upgrade">Buy for $<span id="shield1-cost">1000000</span></button>
+    <div id="text">Doubles Shield Generators Military Power Per Second</div>
+</div>
+<div class="upgrade" id="shield2-div">
+    <span class="upgrade-name">Adaptive Shielding</span>
+    <button id="shield2-upgrade">Buy for $<span id="shield2-cost">1000000</span></button>
+    <div id="text">Doubles Shield Generators Military Power Per Second</div>
+</div>
+<div class="upgrade" id="shield3-div">
+    <span class="upgrade-name">Planetary Shielding</span>
+    <button id="shield3-upgrade">Buy for $<span id="shield3-cost">1000000</span></button>
+    <div id="text">Doubles Shield Generators Military Power Per Second</div>
+</div>
+
+<!-- medic Medics -->
+<div class="upgrade" id="medic1-div">
+    <span class="upgrade-name">Enhanced Healing Speed</span>
+    <button id="medic1-upgrade">Buy for $<span id="medic1-cost">10000000</span></button>
+    <div id="text">Doubles medic Medics Military Power Per Second</div>
+</div>
+<div class="upgrade" id="medic2-div">
+    <span class="upgrade-name">medic Replication</span>
+    <button id="medic2-upgrade">Buy for $<span id="medic2-cost">10000000</span></button>
+    <div id="text">Doubles medic Medics Military Power Per Second</div>
+</div>
+<div class="upgrade" id="medic3-div">
+    <span class="upgrade-name">Full Body Regeneration</span>
+    <button id="medic3-upgrade">Buy for $<span id="medic3-cost">10000000</span></button>
+    <div id="text">Doubles medic Medics Military Power Per Second</div>
+</div>
+
+<!-- nuke Warhead -->
+<div class="upgrade" id="nuke1-div">
+    <span class="upgrade-name">Precision Targeting</span>
+    <button id="nuke1-upgrade">Buy for $<span id="nuke1-cost">100000000</span></button>
+    <div id="text">Doubles nuke Warhead Military Power Per Second</div>
+</div>
+<div class="upgrade" id="nuke2-div">
+    <span class="upgrade-name">Yield Increase</span>
+    <button id="nuke2-upgrade">Buy for $<span id="nuke2-cost">100000000</span></button>
+    <div id="text">Doubles nuke Warhead Military Power Per Second</div>
+</div>
+<div class="upgrade" id="nuke3-div">
+    <span class="upgrade-name">Multiple Independently Targetable Reentry Vehicle (MIRV)</span>
+    <button id="nuke3-upgrade">Buy for $<span id="nuke3-cost">100000000</span></button>
+    <div id="text">Doubles nuke Warhead Military Power Per Second</div>
+</div>
+
+<!-- platform Bombardment Platforms -->
+<div class="upgrade" id="platform1-div">
+    <span class="upgrade-name">Advanced Targeting</span>
+    <button id="platform1-upgrade">Buy for $<span id="platform1-cost">1000000000</span></button>
+    <div id="text">Doubles platform Bombardment Platforms Military Power Per Second</div>
+</div>
+<div class="upgrade" id="platform2-div">
+    <span class="upgrade-name">Increased Payload</span>
+    <button id="platform2-upgrade">Buy for $<span id="platform2-cost">1000000000</span></button>
+    <div id="text">Doubles platform Bombardment Platforms Military Power Per Second</div>
+</div>
+<div class="upgrade" id="platform3-div">
+    <span class="upgrade-name">Planetary Annihilation Capability</span>
+    <button id="platform3-upgrade">Buy for $<span id="platform3-cost">1000000000</span></button>
+    <div id="text">Doubles platform Bombardment Platforms Military Power Per Second</div>
+</div>
+<!-- Land Mines -->
+<div class="upgrade" id="landmine1-div">
+    <span class="upgrade-name">Remote Activation</span>
+    <button id="landmine1-upgrade">Buy for $<span id="landmine1-cost">100</span></button>
+    <div id="text">Doubles Land Mines Military Power Per Second</div>
+</div>
+<div class="upgrade" id="landmine2-div">
+    <span class="upgrade-name">Stealth Camouflage</span>
+    <button id="landmine2-upgrade">Buy for $<span id="landmine2-cost">100</span></button>
+    <div id="text">Doubles Land Mines Military Power Per Second</div>
+</div>
+<div class="upgrade" id="landmine3-div">
+    <span class="upgrade-name">Biochemical Payload</span>
+    <button id="landmine3-upgrade">Buy for $<span id="landmine3-cost">100</span></button>
+    <div id="text">Doubles Land Mines Military Power Per Second</div>
+</div>
+
+<!-- Napalm -->
+<div class="upgrade" id="napalm1-div">
+    <span class="upgrade-name">Increased Burn Time</span>
+    <button id="napalm1-upgrade">Buy for $<span id="napalm1-cost">1000</span></button>
+    <div id="text">Doubles Napalm Military Power Per Second</div>
+</div>
+<div class="upgrade" id="napalm2-div">
+    <span class="upgrade-name">Air Burst Capability</span>
+    <button id="napalm2-upgrade">Buy for $<span id="napalm2-cost">1000</span></button>
+    <div id="text">Doubles Napalm Military Power Per Second</div>
+</div>
+<div class="upgrade" id="napalm3-div">
+    <span class="upgrade-name">Thermobaric Upgrade</span>
+    <button id="napalm3-upgrade">Buy for $<span id="napalm3-cost">1000</span></button>
+    <div id="text">Doubles Napalm Military Power Per Second</div>
+</div>
+
+<!-- Drones -->
+<div class="upgrade" id="drone1-div">
+    <span class="upgrade-name">Extended Range</span>
+    <button id="drone1-upgrade">Buy for $<span id="drone1-cost">10000</span></button>
+    <div id="text">Doubles Drones Military Power Per Second</div>
+</div>
+<div class="upgrade" id="drone2-div">
+    <span class="upgrade-name">Stealth Technology</span>
+    <button id="drone2-upgrade">Buy for $<span id="drone2-cost">10000</span></button>
+    <div id="text">Doubles Drones Military Power Per Second</div>
+</div>
+<div class="upgrade" id="drone3-div">
+    <span class="upgrade-name">Swarm Intelligence</span>
+    <button id="drone3-upgrade">Buy for $<span id="drone3-cost">10000</span></button>
+    <div id="text">Doubles Drones Military Power Per Second</div>
+</div>
+
+<!-- Child Soldiers -->
+<div class="upgrade" id="child1-div">
+    <span class="upgrade-name">Basic Military Training</span>
+    <button id="child1-upgrade">Buy for $<span id="child1-cost">100000</span></button>
+    <div id="text">Doubles Child Soldiers Military Power Per Second</div>
+</div>
+<div class="upgrade" id="child2-div">
+    <span class="upgrade-name">Advanced Combat Suit</span>
+    <button id="child2-upgrade">Buy for $<span id="child2-cost">100000</span></button>
+    <div id="text">Doubles Child Soldiers Military Power Per Second</div>
+</div>
+<div class="upgrade" id="child3-div">
+    <span class="upgrade-name">Brainwashed Super Soldiers</span>
+    <button id="child3-upgrade">Buy for $<span id="child3-cost">100000</span></button>
+    <div id="text">Doubles Child Soldiers Military Power Per Second</div>
+</div>
+
+<!-- AI-Powered Killer Robots -->
+<div class="upgrade" id="ai1-div">
+    <span class="upgrade-name">Advanced Weaponry</span>
+    <button id="ai1-upgrade">Buy for $<span id="ai1-cost">1000000</span></button>
+    <div id="text">Doubles AI-Powered Killer Robots Military Power Per Second</div>
+</div>
+<div class="upgrade" id="ai2-div">
+    <span class="upgrade-name">Self-Repair Systems</span>
+    <button id="ai2-upgrade">Buy for $<span id="ai2-cost">1000000</span></button>
+    <div id="text">Doubles AI-Powered Killer Robots Military Power Per Second</div>
+</div>
+<div class="upgrade" id="ai3-div">
+    <span class="upgrade-name">Autonomous Robot Army</span>
+    <button id="ai3-upgrade">Buy for $<span id="ai3-cost">1000000</span></button>
+    <div id="text">Doubles AI-Powered Killer Robots Military Power Per Second</div>
+</div>
+
+<!-- Mind Control Devices -->
+<div class="upgrade" id="mindcontrol1-div">
+    <span class="upgrade-name">Increased Range</span>
+    <button id="mindcontrol1-upgrade">Buy for $<span id="mindcontrol1-cost">10000000</span></button>
+    <div id="text">Doubles Mind Control Devices Military Power Per Second</div>
+</div>
+<div class="upgrade" id="mindcontrol2-div">
+    <span class="upgrade-name">Mass Control</span>
+    <button id="mindcontrol2-upgrade">Buy for $<span id="mindcontrol2-cost">10000000</span></button>
+    <div id="text">Doubles Mind Control Devices Military Power Per Second</div>
+</div>
+<div class="upgrade" id="mindcontrol3-div">
+    <span class="upgrade-name">Global Hypnosis Device</span>
+    <button id="mindcontrol3-upgrade">Buy for $<span id="mindcontrol3-cost">10000000</span></button>
+    <div id="text">Doubles Mind Control Devices Military Power Per Second</div>
+</div>
+
+<!-- Weaponized Covid-19 -->
+<div class="upgrade" id="covid1-div">
+    <span class="upgrade-name">Increased Virulence</span>
+    <button id="covid1-upgrade">Buy for $<span id="covid1-cost">100000000</span></button>
+    <div id="text">Doubles Weaponized Covid-19 Military Power Per Second</div>
+</div>
+<div class="upgrade" id="covid2-div">
+    <span class="upgrade-name">Resistance to Current Vaccines</span>
+    <button id="covid2-upgrade">Buy for $<span id="covid2-cost">100000000</span></button>
+    <div id="text">Doubles Weaponized Covid-19 Military Power Per Second</div>
+</div>
+<div class="upgrade" id="covid3-div">
+    <span class="upgrade-name">Apocalyptic Strain</span>
+    <button id="covid3-upgrade">Buy for $<span id="covid3-cost">100000000</span></button>
+    <div id="text">Doubles Weaponized Covid-19 Military Power Per Second</div>
+</div>
+
+<!-- Death Stars -->
+<div class="upgrade" id="deathstar1-div">
+    <span class="upgrade-name">Faster Recharge</span>
+    <button id="deathstar1-upgrade">Buy for $<span id="deathstar1-cost">1000000000</span></button>
+    <div id="text">Doubles Death Stars Military Power Per Second</div>
+</div>
+<div class="upgrade" id="deathstar2-div">
+    <span class="upgrade-name">Improved Defense Systems</span>
+    <button id="deathstar2-upgrade">Buy for $<span id="deathstar2-cost">1000000000</span></button>
+    <div id="text">Doubles Death Stars Military Power Per Second</div>
+</div>
+<div class="upgrade" id="deathstar3-div">
+    <span class="upgrade-name">Multi-Planet Destruction Beam</span>
+    <button id="deathstar3-upgrade">Buy for $<span id="deathstar3-cost">1000000000</span></button>
+    <div id="text">Doubles Death Stars Military Power Per Second</div>
+</div>
+
+    </div>
+    
+</div>
+    <script>
+        function openTab(evt, tabName) {
+    // Declare all variables
+    var i, tabcontent, tablinks;
+  
+    // Get all elements with class="tabcontent" and hide them
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+      tabcontent[i].style.display = "none";
+    }
+  
+    // Get all elements with class="tablinks" and remove the class "active"
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+      tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+  
+    // Show the current tab, and add an "active" class to the button that opened the tab
+    document.getElementById(tabName).style.display = "block";
+    evt.currentTarget.className += " active";
+  }
+
+    </script>
+    <script src="minesweeper.js"></script>
+    <p class="discord-link">idleMinefield v0.1.2 (Beta) - <a href="https://discord.gg/wYnpctM3gp" target="_blank">Join the Discord!</a> - <a href="#popup-optin">How to Play</a> </p>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/firebase/9.6.7/firebase-app.js";
+        import { getAnalytics } from "https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/firebase/9.6.7/firebase-analytics.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+      
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+          apiKey: "AIzaSyBc4A_o0SbmrDkX58b2BVJ_7VH9wB77P5I",
+          authDomain: "idleminefield.firebaseapp.com",
+          projectId: "idleminefield",
+          storageBucket: "idleminefield.appspot.com",
+          messagingSenderId: "273116221924",
+          appId: "1:273116221924:web:c71d9dac3b75f1d3df37f1",
+          measurementId: "G-7P1JF0HZWB"
+        };
+      
+        // Initialize Firebase
+        // const app = initializeApp(firebaseConfig);
+        // const analytics = getAnalytics(app);
+      </script>
+<!--客服 开始-->
+<script src="//g8hh.github.io/static/js/jquery.min.js"></script>
+<link rel="stylesheet" href="//g8hh.github.io/static/css/kf.css" type="text/css" media="screen" charset="utf-8">
+<script src="//g8hh.github.io/static/js/kf.js"></script>
+<!-- 客服 结束 -->
+<!--站长统计--> 
+<div style="display: none">
+    <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?028b1b5f659ed138230f4cafd7ad0dfc";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+    </div>
+</body>
+</html>
