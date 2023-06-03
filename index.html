@@ -1,19 +1,34 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8">
     <title>idleMinefield</title>
-    <link rel="stylesheet" type="text/css" href="styles.css">
+    <link rel="stylesheet" type="text/css" href="styles2.css">
     <link rel="icon" href="logosmall.png">
 </head>
 <body>
     <script src="chs.js"></script>
     <script src="core.js"></script>
+
+    <div class="bg-overlay" id="prestigecheck">
+
+		<div class="prestige-optin">
+            
+            <button id="prestigeconfirm">Prestige</button>
+            <p>Are you sure you want to prestige? You will lose all your progress and start over with <span id="newGoldenFlags">0</span> Golden Flags.</p>
+            
+            <a href="#" class="optin-close" id="closeprestige">&times;</a>
+    </div>
+    </div>
+
     <div class="bg-overlay" id="popup-optin">
+
 		<div class="subscribe-optin">
-			<h1>idleMinefield v0.1.2 (Beta)</h1>
+
+			<h1>idleMinefield v0.3.0 (Beta)</h1>
             <p> idleMinefield is an incremental game loosely based on the puzzle game "Minesweeper".</p>
             <h4>What's new?</h4>
+
             <div>
                 <button onclick="toggleChangeLog('v0.1.1')">v0.1.1 Change Log &#9660;</button>
                 <div id="v0.1.1" style="display: none">
@@ -21,13 +36,55 @@
                   <p>- Fixed a Bug Preventing Reputation from Being Displayed</p>
                 </div>
             </div> 
+
             <div>
                 <button onclick="toggleChangeLog('v0.1.2')">v0.1.2 Change Log &#9660;</button>
                 <div id="v0.1.2" style="display: none">
                   <p>- Added this Change Log</p>
                   <p>- Removed popups when player cannot afford an upgrade (In future I will make the buttons inactive when the player cannot afford the upgrade)</p>
                 </div>
-              </div> 
+            </div>
+            <div>
+                <button onclick="toggleChangeLog('v0.1.3')">v0.1.3 Change Log &#9660;</button>
+                <div id="v0.1.3" style="display: none">
+                  <p>- Added a player count tracker</p>
+                </div>
+            </div>
+                <div>
+                    <button onclick="toggleChangeLog('v0.1.4')">v0.1.4 Change Log &#9660;</button>
+                    <div id="v0.1.4" style="display: none">
+                      <p>- Added Flagger and Sweeper Upgrades (Very Powerful)</p>
+                      <p>- Reduced Frequency of Player Count Tracker</p>
+                      <p>- Corrected Military Power Values (visual only)</p>
+                      <p>- Added Military Power Per Second Readout </p>
+                    </div>
+                </div> 
+                <div>
+                    <button onclick="toggleChangeLog('v0.1.5')">v0.1.5 Change Log &#9660;</button>
+                    <div id="v0.1.5" style="display: none">
+                      <p>- Added Mobile Support</p>
+                    </div>
+                    <div>
+                        <button onclick="toggleChangeLog('v0.2.0')">v0.2.0 Change Log &#9660;</button>
+                        <div id="v0.2.0" style="display: none">
+                          <p>- Added first challenge</p>
+                          <p>- Added icons to text</p>
+                          <p>- Fixed a bug dramatically slowing late game flagger speed</p>
+                          <p>- Added dark mode</p>
+                        </div>
+                </div> 
+
+                <div>
+                    <button onclick="toggleChangeLog('v0.3.0')">v0.3.0 Change Log &#9660;</button>
+                    <div id="v0.3.0" style="display: none">
+                      <p>- Fixed challenges displaying incorrectly on mobile</p>
+                      <p>- Added prestige mechanic</p>
+                      <p>- Fixed performance issues</p>
+                      <p></p>
+                    </div>
+            </div> 
+
+            </div> 
               <script>
                 function toggleChangeLog(id) {
                   var x = document.getElementById(id);
@@ -52,19 +109,21 @@
             <p><b>Money:</b> Money is gained by selling mines, and can be used to purchase military units and upgrades.</p>
             <p><b>Reputation:</b> Reputation is gained and lost by selling mines to various countries. Having exceptionally low or high reputation unlocks some unique upgrades.</p>
             <p><b>Military Power:</b> Military Power is used to invade nations, giving you more land to sweep for mines (larger grid). A larger grid also retruns more mines and flags!</p>
-			<a href="#" class="optin-close">&times;</a>
+			<a href="#" class="optin-close" id="closehelp">&times;</a>
 		</div>
 	</div>
 
     <img src="logo.png" alt="Logo" class="logo" style="display: block; margin-left: auto; margin-right: auto;"> 
     <div class="container">
         <div id="minefield"></div>
-        <button id="reset">Reset</button>
+        <button id="reset">Reset</button><button id="prestige">Prestige</button>
+        <div id="goldenFlags">Golden Flags: 0</div>
         <div id="score">Flags: 0</div>
         <div id="minesRetrieved">Mines: 0</div> 
         <div id="money">Money: 0</div> 
         <div id="reputation">Reputation: 0</div>
         <div id="militaryPower">Military Power: 0</div>
+
 
     </div>
 
@@ -73,8 +132,49 @@
         <button class="tablinks" onclick="openTab(event, 'Unlocks')">Unlocks</button>
         <button class="tablinks" onclick="openTab(event, 'Military')">Military</button>
         <button class="tablinks" onclick="openTab(event, 'Research')">Research</button>
+        <button class="tablinks" onclick="openTab(event, 'Challenges')">Challenges</button>
+        <button class="tablinks" onclick="openTab(event, 'PrestigeStore')">Prestige Store</button>
       </div>
 
+    <div class="bg-overlay" id="challengewindow">
+
+		<div class="subscribe-optin">
+            <div id="challengecontainer">
+                <div id="challenge1heading"><h3>Size Surge</h3></div>
+            <div id="minefield2"></div>
+            <div id="challengewintext"><h4>Game Won!</h4></div>
+            <div id="challengelosetext"><h4>Game Lost!</h4></div>
+            <button id="resetchallange">Reset</button>
+            </div>
+            <a href="#" class="optin-close" id="closechallenge">&times;</a>
+        </div>  
+    </div>  
+
+    <div id="Challenges" class="tabcontent">
+    <div class="Challenges">
+
+    <div class="upgrade" id="challenge1">
+        <span class="upgrade-name">Size Surge</span>
+        <div id="challenge1text"><span id="challenge1leveltext">0</span> Completions</div>
+            <button id="challenge1button">Start</button>
+            <div id="text"><p>Solve Progressively Larger Minefields, Each completion increases flagger speed by 1%</p><p><div id="texts5">Boosting Flagger by <span id="challenge1leveltext2">0</span>%</div></p></div>
+            
+    </div>
+
+    <div class="upgrade" id="challenge2">
+        <span class="upgrade-name">Speed Demon (Soon)</span>
+        <div id="challenge2text">Best Time: <span id="challenge2-completed">0</span></div>
+        <button id="challenge2button">Start</button>
+        <div id="text"><p>Increases Mines Retrieved Based On Your Fastest Solve</p><p>Currently Increasing Mines Recieved by 0%</p></div>
+    </div>
+
+    <div class="upgrade" id="challenge3">
+        <span class="upgrade-name">Casual Solver (Soon)</span>
+        <button id="challenge2button">Start</button>
+        <div id="text"><p>A Normal Game of Minesweeper, Rewards You With 10% of Your Current Flags, Mines and Money</p><p>Available Again In: 15 minutes</p></div>
+    </div>
+</div>
+</div>
 <div id="Upgrades" class="tabcontent">
     <div class="upgrades">
     </div>
@@ -84,12 +184,14 @@
           <span id="sweeper-owned">0</span>
           <button id="sweeper-upgrade">Buy for <span id="sweeper-cost">1</span> flags</button>
           <div id="text">Reveals one cell every second</div>
+          <div id="texts1">Flags one mine every 3 seconds</div>
+          <div id="texts2">Boosting Flagger by x<span id="sweeper-owned2">0</span></div>
         </div>
         <div class="upgrade" id="flagger-upgrade-div">
           <span class="upgrade-name">Mine Flagger</span>
           <span id="flagger-owned">0</span>
           <button id="flagger-upgrade">Buy for <span id="flagger-cost">5</span> flags</button>
-          <div id="text">Flags one mine every 5 seconds</div>
+          <div id="text">Flags one mine every 3 seconds</div>
         </div>
         <div class="upgrade" id="retriever-upgrade-div">
             <span class="upgrade-name">Mine Retriever</span>
@@ -99,12 +201,59 @@
           </div>
       </div>
     </div>
+
+    <div id="PrestigeStore" class="tabcontent">
+        <div class="upgrades">
+        <div class="store">
+
+            <div class="upgrade" id="heaven-upgrade-div">
+                <span class="upgrade-name">Divine Explosives</span>
+                <button id="heaven-upgrade">Buy for <span id="heaven-cost">1</span> Golden Flags</button>
+                <div id="text">What's God going to do with these?</div>
+                <div id="text">Allows the sale of mines to heaven, gives 10x positive reputation but does not give currency</div>
+              </div>
+
+              <div class="upgrade" id="hell-upgrade-div">
+                <span class="upgrade-name">Diabolical Deals</span>
+                <button id="hell-upgrade">Buy for <span id="hell-cost">1</span> Golden Flags</button>
+                <div id="text">This can't be good.</div>
+                <div id="text">Allows the sale of mines to hell, gives 10x negative reputation but does not give currency</div>
+              </div>
+
+              <div class="upgrade" id="equilibrium-upgrade-div">
+                <span class="upgrade-name">Realm of Equilibrium</span>
+                <button id="equilibrium-upgrade">Buy for <span id="equilibrium-cost">1</span> Golden Flags</button>
+                <div id="text">Not Great, Not Bad.</div>
+                <div id="text">Allows the sale of mines to the Realm of Equilibrium, gives 10x money and does not effect reputation</div>
+              </div>
+
+              <div class="upgrade" id="speedflagger-upgrade-div">
+                <span class="upgrade-name">Speed Flagging</span>
+                <span id="speedflagger-owned">0</span>
+                <button id="speedflagger-upgrade">Buy for <span id="speedflagger-cost">1</span> Golden Flags</button>
+                <div id="text">Increases flagger multipier by 1</div>
+                <div id="text">Currently boosting flaggers by <span id="speedflaggercount">0</span>x</div>
+              </div>
+
+              <div class="upgrade" id="goldenmines-upgrade-div">
+                <span class="upgrade-name">Golden Mines (Soon)</span>
+                <span id="goldenmines-owned">0</span>
+                <button id="goldenmines-upgrade">Buy for <span id="goldenmines-cost">1</span> Golden Flags</button>
+                <div id="text">Increases the chance of spawning a golden mine by 1%</div>
+                <div id="text">Current golden mine chance 0%</div>
+                <div id="text">Current golden mine value $1000</div>
+              </div>
+
+            
+          </div>
+        </div>
+    </div>
+
     <div id="Unlocks" class="tabcontent">
         <div class="unlocks">
             <div class="store">
             <div class="upgrade" id="replenisher-upgrade-div">
                 <span class="upgrade-name">Mine Replenisher</span>
-                <span id="replenisher-owned">0</span>
                 <button id="replenisher-upgrade">Buy for <span id="replenisher-cost">10</span> flags</button>
                     <div id="text">Resets the game automatically</div>
             </div>
@@ -125,9 +274,13 @@
             <div class="upgrade" id="sales-div">
                 <span class="upgrade-name">Mine Sales</span>
                 <select id="country-select">
-                    <option value="NATO Member">(10) NATO Member</option>
-                    <option value="Neutral Country">(20) Neutral Country</option>
-                    <option value="Warsaw Pact Member">(30) Warsaw Pact Member</option>
+                    <option value="NATO Member">NATO Member ($10)(+Rep)</option>
+                    <option value="Neutral Country">Neutral Country ($20) </option>
+                    <option value="Warsaw Pact Member">Warsaw Pact Member ($30) (-Rep)</option>
+                   <!---<option value="Non-Aligned Country">Non-Aligned Country ($40)</option>-->
+                   <option value="Heaven" id="heavenselect" style="display: none;">Heaven ($0) (+++Rep)</option>
+                    <option value="Hell" id="hellselect" style="display: none;">Hell ($0) (---Rep)</option>
+                    <option value="Equilibrium" id="equilibriumselect" style="display: none;">Realm of Equilibrium ($200) (No Rep)</option>
                 </select>
                 <button id="sell-mines">Sell Mines</button>
                 <div id="text">Sell your retrieved mines to different countries</div>
@@ -147,13 +300,13 @@
             <span class="upgrade-name">Infantry Soldier</span>
             <span id="infantry-owned">0</span>
             <button id="infantry-upgrade">Buy for $<span id="infantry-cost">5</span></button>
-            <div id="text">Generates 1 Military Power Per Second</div>
+            <div id="text">Generates <span id="infantry-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="mortar-div">
             <span class="upgrade-name">Mortar Team</span>
             <span id="mortar-owned">0</span>
             <button id="mortar-upgrade">Buy for $<span id="mortar-cost">1100</span></button>
-            <div id="text">Generates 5 Military Power Per Second</div>
+            <div id="text">Generates <span id="mortar-power">1</span> Military Power Per Second</div>
         </div>
         
         <!-- Add HTML for the rest of the units -->
@@ -161,163 +314,172 @@
             <span class="upgrade-name">Field Engineer</span>
             <span id="engineer-owned">0</span>
             <button id="engineer-upgrade">Buy for $<span id="engineer-cost">12000</span></button>
-            <div id="text">Generates 45 Military Power Per Second</div>
+            <div id="text">Generates <span id="engineer-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="artillery-div">
             <span class="upgrade-name">Artillery Platform</span>
             <span id="artillery-owned">0</span>
             <button id="artillery-upgrade">Buy for $<span id="artillery-cost">130000</span></button>
-            <div id="text">Generates 250 Military Power Per Second</div>
+            <div id="text">Generates <span id="artillery-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="sniper-div">
             <span class="upgrade-name">Sniper</span>
             <span id="sniper-owned">0</span>
             <button id="sniper-upgrade">Buy for $<span id="sniper-cost">1400000</span></button>
-            <div id="text">Generates 1250 Military Power Per Second</div>
+            <div id="text">Generates <span id="sniper-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="tank-div">
             <span class="upgrade-name">Tank</span>
             <span id="tank-owned">0</span>
             <button id="tank-upgrade">Buy for $<span id="tank-cost">20000000</span></button>
-            <div id="text">Generates 7500 Military Power Per Second</div>
+            <div id="text">Generates <span id="tank-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="bomber-div">
             <span class="upgrade-name">Bomber</span>
             <span id="bomber-owned">0</span>
             <button id="bomber-upgrade">Buy for $<span id="bomber-cost">330000000</span></button>
-            <div id="text">Generates 40000 Military Power Per Second</div>
+            <div id="text">Generates <span id="bomber-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="spy-div">
             <span class="upgrade-name">Spy</span>
             <span id="spy-owned">0</span>
             <button id="spy-upgrade">Buy for $<span id="spy-cost">5100000000</span></button>
-            <div id="text">Generates 250000 Military Power Per Second</div>
+            <div id="text">Generates <span id="spy-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="jet-div">
             <span class="upgrade-name">Fighter Jet</span>
             <span id="jet-owned">0</span>
             <button id="jet-upgrade">Buy for $<span id="jet-cost">75000000000</span></button>
-            <div id="text">Generates 1500000 Military Power Per Second</div>
+            <div id="text">Generates <span id="jet-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="stealth-div">
             <span class="upgrade-name">Stealth Aircraft</span>
             <span id="stealth-owned">0</span>
             <button id="stealth-upgrade">Buy for $<span id="stealth-cost">1000000000000</span></button>
-            <div id="text">Generates 10000000 Military Power Per Second</div>
+            <div id="text">Generates <span id="stealth-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="emp-div">
             <span class="upgrade-name">EMP Device</span>
             <span id="emp-owned">0</span>
             <button id="emp-upgrade">Buy for $<span id="emp-cost">14000000000000</span></button>
-            <div id="text">Generates 60000000 Military Power Per Second</div>
+            <div id="text">Generates <span id="emp-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="cyber-div">
             <span class="upgrade-name">Cyber Warfare Unit</span>
             <span id="cyber-owned">0</span>
             <button id="cyber-upgrade">Buy for $<span id="cyber-cost">170000000000000</span></button>
-            <div id="text">Generates 400000000 Military Power Per Second</div>
+            <div id="text">Generates <span id="cyber-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="decoy-div">
             <span class="upgrade-name">Holographic Decoy Units</span>
             <span id="decoy-owned">0</span>
             <button id="decoy-upgrade">Buy for $<span id="decoy-cost">130000</span></button>
-            <div id="text">Generates 400 Military Power Per Second</div>
+            <div id="text">Generates <span id="decoy-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="helicopter-div">
             <span class="upgrade-name">Attack Helicopters</span>
             <span id="helicopter-owned">0</span>
             <button id="helicopter-upgrade">Buy for $<span id="helicopter-cost">1400000</span></button>
-            <div id="text">Generates 2000 Military Power Per Second</div>
+            <div id="text">Generates <span id="helicopter-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="submarine-div">
             <span class="upgrade-name">Submarine</span>
             <span id="submarine-owned">0</span>
             <button id="submarine-upgrade">Buy for $<span id="submarine-cost">20000000</span></button>
-            <div id="text">Generates 12000 Military Power Per Second</div>
+            <div id="text">Generates <span id="submarine-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="droid-div">
             <span class="upgrade-name">Peacekeeper Droid</span>
             <span id="droid-owned">0</span>
             <button id="droid-upgrade">Buy for $<span id="droid-cost">330000000</span></button>
-            <div id="text">Generates 60000 Military Power Per Second</div>
+            <div id="text">Generates <span id="droid-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="shield-div">
             <span class="upgrade-name">Shield Generator</span>
             <span id="shield-owned">0</span>
             <button id="shield-upgrade">Buy for $<span id="shield-cost">5100000000</span></button>
-            <div id="text">Generates 400000 Military Power Per Second</div>
+            <div id="text">Generates <span id="shield-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="medic-div">
             <span class="upgrade-name">Nanobot Medics</span>
             <span id="medic-owned">0</span>
             <button id="medic-upgrade">Buy for $<span id="medic-cost">75000000000</span></button>
-            <div id="text">Generates 2200000 Military Power Per Second</div>
+            <div id="text">Generates <span id="medic-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="nuke-div">
             <span class="upgrade-name">Nuclear Warhead</span>
             <span id="nuke-owned">0</span>
             <button id="nuke-upgrade">Buy for $<span id="nuke-cost">1000000000000</span></button>
-            <div id="text">Generates 15000000 Military Power Per Second</div>
+            <div id="text">Generates <span id="nuke-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="platform-div">
             <span class="upgrade-name">Orbital Bombardment Platforms</span>
             <span id="platform-owned">0</span>
             <button id="platform-upgrade">Buy for $<span id="platform-cost">14000000000000</span></button>
-            <div id="text">Generates 90000000 Military Power Per Second</div>
+            <div id="text">Generates <span id="platform-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="landmine-div">
             <span class="upgrade-name">Land Mine</span>
             <span id="landmine-owned">0</span>
             <button id="landmine-upgrade">Buy for $<span id="landmine-cost">130000</span></button>
-            <div id="text">Generates 400 Military Power Per Second</div>
+            <div id="text">Generates <span id="landmine-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="napalm-div">
             <span class="upgrade-name">Napalm</span>
             <span id="napalm-owned">0</span>
             <button id="napalm-upgrade">Buy for $<span id="napalm-cost">1400000</span></button>
-            <div id="text">Generates 2000 Military Power Per Second</div>
+            <div id="text">Generates <span id="napalm-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="drone-div">
             <span class="upgrade-name">Drone</span>
             <span id="drone-owned">0</span>
             <button id="drone-upgrade">Buy for $<span id="drone-cost">20000000</span></button>
-            <div id="text">Generates 12000 Military Power Per Second</div>
+            <div id="text">Generates <span id="drone-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="child-div">
             <span class="upgrade-name">Child Soldier</span>
             <span id="child-owned">0</span>
             <button id="child-upgrade">Buy for $<span id="child-cost">330000000</span></button>
-            <div id="text">Generates 60000 Military Power Per Second</div>
+            <div id="text">Generates <span id="child-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="ai-div">
             <span class="upgrade-name">Chat GPT Powered Killer Robot</span>
             <span id="ai-owned">0</span>
             <button id="ai-upgrade">Buy for $<span id="ai-cost">5100000000</span></button>
-            <div id="text">Generates 400000 Military Power Per Second</div>
+            <div id="text">Generates <span id="ai-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="mindcontrol-div">
             <span class="upgrade-name">Mind Control Device</span>
             <span id="mindcontrol-owned">0</span>
             <button id="mindcontrol-upgrade">Buy for $<span id="mindcontrol-cost">75000000000</span></button>
-            <div id="text">Generates 2200000 Military Power Per Second</div>
+            <div id="text">Generates <span id="mindcontrol-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="covid-div">
             <span class="upgrade-name">Weaponized COVID-19</span>
             <span id="covid-owned">0</span>
             <button id="covid-upgrade">Buy for $<span id="covid-cost">1000000000000</span></button>
-            <div id="text">Generates 15000000 Military Power Per Second</div>
+            <div id="text">Generates <span id="covid-power">1</span> Military Power Per Second</div>
         </div>
         <div class="upgrade" id="deathstar-div">
             <span class="upgrade-name">Death Star</span>
             <span id="deathstar-owned">0</span>
             <button id="deathstar-upgrade">Buy for $<span id="deathstar-cost">14000000000000</span></button>
-            <div id="text">Generates 90000000 Military Power Per Second</div>
+            <div id="text">Generates <span id="deathstar-power">1</span> Military Power Per Second</div>
         </div>
     </div>
 </div>
 <div id="Research" class="tabcontent">
     <div class="research">
-
+        <div class="upgrade" id="synergy1-upgrade-div">
+            <span class="upgrade-name">Sweep & Flag Synergy</span>
+            <button id="synergy1-upgrade">Buy for <span id="synergy1-cost">50000</span> flags</button>
+            <div id="text">Sweepers also flag mines</div>    
+        </div>
+        <div class="upgrade" id="synergy2-upgrade-div">
+            <span class="upgrade-name">Sweep & Flag Synergy</span>
+            <button id="synergy2-upgrade">Buy for <span id="synergy2-cost">250000</span> flags</button>
+            <div id="text">Flaggers power is multiplied by number of the Sweepers</div>    
+        </div>
             <div class="upgrade" id="infantry1-div">
                 <span class="upgrade-name">Enhanced Training</span>
                 <button id="infantry1-upgrade">Buy for $<span id="infantry1-cost">4046</span></button>
@@ -815,14 +977,16 @@
 
     </script>
     <script src="minesweeper.js"></script>
-    <p class="discord-link">idleMinefield v0.1.2 (Beta) - <a href="https://discord.gg/wYnpctM3gp" target="_blank">Join the Discord!</a> - <a href="#popup-optin">How to Play</a> </p>
+    <p class="discord-link">idleMinefield v0.3.0 (Beta) - <a href="https://discord.gg/wYnpctM3gp" target="_blank">Join the Discord!</a> - <a href="" id="howtoplay">How to Play</a> </p>
     <script type="module">
         // Import the functions you need from the SDKs you need
-        // import { initializeApp } from "https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/firebase/9.6.7/firebase-app.js";
-        // import { getAnalytics } from "https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/firebase/9.6.7/firebase-analytics.js";
-        // TODO: Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
-      
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics.js";
+        import { getFirestore, doc, updateDoc, getDoc, FieldValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { increment } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+
         // Your web app's Firebase configuration
         // For Firebase JS SDK v7.20.0 and later, measurementId is optional
         const firebaseConfig = {
@@ -836,9 +1000,40 @@
         };
       
         // Initialize Firebase
-        // const app = initializeApp(firebaseConfig);
-        // const analytics = getAnalytics(app);
-      </script>
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+        async function sendHeartbeat() {
+    try {
+      const now = new Date();
+      const segment = Math.floor((now.getUTCHours() * 3600 + now.getUTCMinutes() * 60) / (15 * 60));
+
+      const docRef = doc(db, 'heartbeats', 'v0.2.0'); // we'll store all heartbeats in a single 'daily' document
+
+      // increment the count for the current minute
+      await setDoc(docRef, {
+        [segment]: increment(1) // using increment to increase the count for the current minute
+      }, { merge: true }).catch(error => {
+        console.error('Error updating document: ', error);
+      });
+      
+      // Get the current count
+      const docSnap = await getDoc(docRef).catch(error => {
+        console.error('Error getting document: ', error);
+      });
+      
+      if (docSnap) {
+        const heartbeatsThisPeriod = docSnap.data()[segment];
+        
+       // console.log(`Heartbeats this minute: ${heartbeatsThisMinute ? heartbeatsThisMinute : 0}`);
+      }
+    } catch(error) {
+      console.error('Error in sendHeartbeat function: ', error);
+    }
+  }
+
+  setInterval(sendHeartbeat, 15 * 60 * 1000);
+</script>
 <!--客服 开始-->
 <script src="//g8hh.github.io/static/js/jquery.min.js"></script>
 <link rel="stylesheet" href="//g8hh.github.io/static/css/kf.css" type="text/css" media="screen" charset="utf-8">

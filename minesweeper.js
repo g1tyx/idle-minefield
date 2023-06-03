@@ -10,7 +10,9 @@ class GameUnit {
         this.upgradeCost = upgradeCost;
         this.upgradeCostMultiplier = upgradeCostMultiplier;
         this.ownedElement = document.getElementById(`${name}-owned`);
+        this.militaryPowerElement = document.getElementById(`${name}-power`);
         this.upgradeButton = document.getElementById(`${name}-upgrade`);
+        this.upgradeDivElement = document.getElementById(`${name}-upgrade-div`);
         this.costElement = document.getElementById(`${name}-cost`);
         this.upgradeButton.addEventListener('click', () => this.buyUpgrade(resources, resourceMapping[name]));
         this.lastEffect = Date.now();
@@ -18,7 +20,6 @@ class GameUnit {
         this.upgrades = 0;
         this.unlocked = false;
     }
-
 
     buyUpgrade(resourceObject, resourceName) {
         if (resourceObject[resourceName] >= this.upgradeCost) {
@@ -37,8 +38,18 @@ class MilitaryUnit extends GameUnit {
         super(name, upgradeCost, upgradeCostMultiplier, baseCost);
         this.power = power;
         this.repthreshold = repthreshold;
+        this.upgradeDiv = document.getElementById(`${name}-div`);
     }
-}
+
+        updateUnlocks1() {
+            if (this.upgrades >= 1) {
+                this.unlocked = true;
+                this.upgradeDiv.style.display = 'flex';
+            }
+        }
+
+    }
+
 
 let sweeper = new GameUnit('sweeper', 1, 1.5, 1);
 let flagger = new GameUnit('flagger', 5, 1.5, 5);
@@ -47,6 +58,13 @@ let retriever = new GameUnit('retriever', 10, 10, 10);
 let sales = new GameUnit('sales', 100, 999, 100);
 let invade = new GameUnit('invade', 1000, 1.5, 1000);
 let autoSeller = new GameUnit('autoSeller', 5000, 1.5, 5000);
+let synergy1 = new GameUnit('synergy1', 50000, 1.5, 50000);
+let synergy2 = new GameUnit('synergy2', 250000, 1.5, 250000);
+let heaven = new GameUnit('heaven', 1, 1.5, 1);
+let hell = new GameUnit('hell', 1, 1.5, 1);
+let equilibrium = new GameUnit('equilibrium', 5, 1.5, 5);
+let speedflagger = new GameUnit('speedflagger', 1, 1.75, 1);
+
 
 /// Neutral Military Units ///
 
@@ -171,10 +189,97 @@ let deathstar1 = new MilitaryUnit('deathstar1', 550000000000000, 1, 550000000000
 let deathstar2 = new MilitaryUnit('deathstar2', 4600000000000000, 2, 4600000000000000, 2, 0);
 let deathstar3 = new MilitaryUnit('deathstar3', 150000000000000000, 3, 150000000000000000, 2, 0);
 
+let gameUnitsArray = [
+    sweeper, flagger, replenisher, retriever, sales, invade, autoSeller, synergy1, synergy2,
+    infantry, infantry1, infantry2, infantry3, mortar, mortar1, mortar2, mortar3, engineer, engineer1, engineer2, engineer3, artillery, artillery1, artillery2, artillery3,
+    sniper, sniper1, sniper2, sniper3, tank, tank1, tank2, tank3, bomber, bomber1, bomber2, bomber3, spy, spy1, spy2, spy3, jet, jet1, jet2, jet3,
+    stealth, stealth1, stealth2, stealth3, emp, emp1, emp2, emp3, cyber, cyber1, cyber2, cyber3,child,child1,child2,child3,ai,ai1,ai2,ai3,mindcontrol,mindcontrol1,mindcontrol2,mindcontrol3,
+    decoy, decoy1, decoy2, decoy3, helicopter, helicopter1, helicopter2, helicopter3, submarine, submarine1, submarine2, submarine3, droid, droid1, droid2, droid3,
+    shield, shield1, shield2, shield3, medic, medic1, medic2, medic3, nuke, nuke1, nuke2, nuke3, platform, platform1, platform2, platform3,
+    landmine, landmine1, landmine2, landmine3, napalm, napalm1, napalm2, napalm3, drone, drone1, drone2, drone3
+  ];
+  
+
 /// Sales Function ///
 const countrySelect = document.getElementById('country-select');
 const sellMinesButton = document.getElementById('sell-mines');
+const tabElement = document.querySelector('.tab');
 sellMinesButton.addEventListener('click', sellMines);   
+const prestigeButton = document.getElementById('prestige');
+prestigeButton.addEventListener('click', prestigeShow);
+const howtoplay = document.getElementById('howtoplay');
+howtoplay.addEventListener('click', howToPlay);
+const closehelp = document.getElementById('closehelp');
+closehelp.addEventListener('click', closeHelp);
+const closeprestige = document.getElementById('closeprestige');
+closeprestige.addEventListener('click', closePrestige);
+const prestigeconfirm = document.getElementById('prestigeconfirm');
+prestigeconfirm.addEventListener('click', prestige);
+let newGoldenFlags = document.getElementById('newGoldenFlags');
+let speedFlaggerCount = document.getElementById('speedflaggercount');
+
+function prestigeShow(e){
+    e.preventDefault();
+    document.getElementById('prestigecheck').style.visibility = 'visible';
+    document.getElementById('prestigecheck').style.opacity = '1';
+    let newGoldenFlags = Math.round((invade.upgrades/25)**4);
+    document.getElementById('newGoldenFlags').innerHTML = `${newGoldenFlags}`;
+}
+
+function closePrestige(e){
+    e.preventDefault();
+    document.getElementById('prestigecheck').style.visibility = 'hidden';
+    document.getElementById('prestigecheck').style.opacity = '0';
+}
+    
+function howToPlay(e){
+    e.preventDefault();
+    document.getElementById('popup-optin').style.visibility = 'visible';
+    document.getElementById('popup-optin').style.opacity = '1';
+};
+
+function closeHelp(e){
+    e.preventDefault();
+    document.getElementById('popup-optin').style.visibility = 'hidden';
+    document.getElementById('popup-optin').style.opacity = '0';
+};
+
+
+///////////////////
+/// Challenges ///
+/////////////////
+/// Challenge 1 ///
+const closechallenge = document.getElementById('closechallenge');
+closechallenge.addEventListener('click', closeChallenge);
+const challenge1button = document.getElementById('challenge1button');
+challenge1button.addEventListener('click', startChallenge1); 
+const resetchallange = document.getElementById('resetchallange');
+resetchallange.addEventListener('click', startChallenge1);
+
+let currentChallenge = 0;
+let challenge1level = 0;
+let challenge1leveltext = document.getElementById('challenge1leveltext');
+let challenge1leveltext2 = document.getElementById('challenge1leveltext2');
+let challengewintext = document.getElementById('challengewintext');
+let challengelosetext = document.getElementById('challengelosetext');
+/// Challenge 1 ///
+
+function closeChallenge(e){
+    e.preventDefault();
+    document.getElementById('challengewindow').style.visibility = 'hidden';
+    document.getElementById('challengewindow').style.opacity = '0';
+};
+
+
+function startChallenge1() {
+    document.getElementById('challengewindow').style.visibility = 'visible';
+    document.getElementById('challengewindow').style.opacity = '1';
+    resetGame2();
+    size2 = 5+challenge1level;
+    mines2 = 3+challenge1level**1.5;
+    currentChallenge = 1;
+    startGame2();
+}
 
 //////////////////////
 /// Save Elements ///
@@ -182,9 +287,12 @@ sellMinesButton.addEventListener('click', sellMines);
 
 /// Player ///
 
+let sweeperOwned2 = document.getElementById(`sweeper-owned2`);
 let lastMilitary = Date.now();
 let lastSave = Date.now();
 let autoSellerActive = false;
+militaryPowerPerSecond = 0;
+let flagsPerSecond = 0;
 
 let resources = {
     score: 0,  // flags
@@ -192,7 +300,8 @@ let resources = {
     money: 0,
     reputation: 0,
     militaryPower: 0,
-    invasionBonus: 0
+    invasionBonus: 0,
+    goldenFlags: 0,
 };
 
 
@@ -315,7 +424,13 @@ const resourceMapping = {
     'deathstar1': 'money',
     'deathstar2': 'money',
     'deathstar3': 'money',
-    'autoSeller': 'score'
+    'autoSeller': 'score',
+    'synergy1': 'score',
+    'synergy2': 'score',
+    'heaven': 'goldenFlags',
+    'hell': 'goldenFlags',
+    'equilibrium': 'goldenFlags',
+    'speedflagger': 'goldenFlags',
 };
 
 /// Save Function ///
@@ -442,6 +557,13 @@ function saveGame() {
         deathstar2: deathstar2.upgrades,
         deathstar3: deathstar3.upgrades,
         autoSeller: autoSeller.upgrades,
+        synergy1: synergy1.upgrades,
+        synergy2: synergy2.upgrades,
+        challenge1level: challenge1level,
+        heaven: heaven.upgrades,
+        hell: hell.upgrades,
+        equilibrium: equilibrium.upgrades,
+        speedflagger: speedflagger.upgrades,
     };
     localStorage.setItem('gameData', JSON.stringify(gameData));
     console.log('Game saved:', gameData);
@@ -457,6 +579,7 @@ function loadGame() {
     savedData = JSON.parse(savedData);
 
     resources = savedData.resources ?? resources;
+    resources.goldenFlags = resources.goldenFlags ?? 0
     sweeper.upgrades = savedData.sweeper ?? sweeper.upgrades;
     flagger.upgrades = savedData.flagger ?? flagger.upgrades;
     replenisher.upgrades = savedData.replenisher ?? replenisher.upgrades;
@@ -573,12 +696,183 @@ function loadGame() {
     deathstar2.upgrades = savedData.deathstar2 ?? deathstar2.upgrades;
     deathstar3.upgrades = savedData.deathstar3 ?? deathstar3.upgrades;
     autoSeller.upgrades = savedData.autoSeller ?? autoSeller.upgrades;
+    synergy1.upgrades = savedData.synergy1 ?? synergy1.upgrades;
+    synergy2.upgrades = savedData.synergy2 ?? synergy2.upgrades;
+    challenge1level = savedData.challenge1level ?? challenge1level;
+    heaven.upgrades = savedData.heaven ?? heaven.upgrades;
+    hell.upgrades = savedData.hell ?? hell.upgrades;
+    equilibrium.upgrades = savedData.equilibrium ?? equilibrium.upgrades;
+    speedflagger.upgrades = savedData.speedflagger ?? speedflagger.upgrades;
+
 
     console.log('Game loaded:', savedData);
 }
 ///////////////////////
 /// Other Elements ///
 /////////////////////
+
+/// Minefield2 /// 
+let size2 = 5;
+let mines2 = 3;
+let mineArray2 = [];
+let markedArray2 = [];
+let revealedArray2 = [];
+let gameOver2 = false;
+let minefield2 = document.getElementById('minefield2');
+
+function startGame2() {
+    mineArray2 = [];
+    markedArray2 = [];
+    revealedArray2 = [];
+    // Other setup similar to the original startGame(), but using variables for the second minefield
+    let cellSize2 = size2 > 10 ? 40 * (10 / size2) : 40;
+    let fontSize2 = cellSize2 / 2; // Half of cell size
+    let imageSize2 = fontSize2 ; // Same as font size
+    document.documentElement.style.setProperty('--cell-size2', `${cellSize2}px`);
+    document.documentElement.style.setProperty('--font-size2', `${fontSize2}px`);
+    document.documentElement.style.setProperty('--image-size2', `${imageSize2}px`);
+    minefield2.style.gridTemplateColumns = `repeat(${size2}, ${cellSize2}px)`;
+    minefield2.style.gridTemplateRows = `repeat(${size2}, ${cellSize2}px)`;
+    gameOver2 = false;
+    document.getElementById('challengelosetext').style.display = 'none';
+    document.getElementById('challengewintext').style.display = 'none';
+
+    for (let i = 0; i < size2 * size2; i++) {
+        const cell = document.createElement('div2');
+        cell.classList.add('cell2');
+        cell.style.width = `${cellSize2}px`;
+        cell.style.height = `${cellSize2}px`;
+
+        // Listeners for the second minefield
+        console.log('oh no');
+        cell.addEventListener('click', () => revealCell2(i));
+        cell.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            markCell2(i);
+        });
+
+        let pressTimer;
+        let start;
+        cell.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            start = Date.now();
+            pressTimer = window.setTimeout(function() {
+                markCell2(i);
+            }, 500);  // time threshold for long press, adjust as necessary
+        }, false);
+
+        cell.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            if (pressTimer) clearTimeout(pressTimer);
+            if (Date.now() - start < 500) {
+                revealCell2(i);
+            }
+        }, false);
+
+        minefield2.appendChild(cell);
+    }
+
+    for (let i = 0; i < mines2; i++) {
+        let index;
+        do {
+            index = Math.floor(Math.random() * size2 * size2);
+        } while (mineArray2.includes(index));
+        mineArray2.push(index);
+    }
+    revealedArray2 = Array(size2*size2).fill(false);
+}
+
+function resetGame2() {
+    // Reset game state variables
+    size2 = 5;
+    mines2 = 3;
+    mineArray2 = [];
+    markedArray2 = [];
+    revealedArray2 = [];
+    gameOver2 = false;
+
+    // Remove all cells from the minefield
+    while (minefield2.firstChild) {
+        minefield2.firstChild.remove();
+    }
+}
+
+function markCell2(index) {
+    if (!gameOver2) {
+        const cell = minefield2.childNodes[index];
+        if (!cell.classList.contains('flagged') && cell.textContent === '') {
+            cell.classList.add('flagged');
+            markedArray2.push(index);
+            checkWinCondition2();
+        } else if (cell.classList.contains('flagged')) {
+            cell.classList.remove('flagged');
+            const markIndex = markedArray2.indexOf(index);
+            markedArray2.splice(markIndex, 1);
+        }
+    }
+}
+
+function revealCell2(index) {
+    // Similar code as revealCell(), but for the second minefield
+    if (!gameOver2 && !markedArray2.includes(index) && !revealedArray2[index]) {
+        const cell = minefield2.childNodes[index];
+        let count = 0;
+        const x = index % size2;
+        const y = Math.floor(index / size2);
+        let surrounding = [];
+
+        for (let dx = -1; dx <= 1; dx++) {
+            for (let dy = -1; dy <= 1; dy++) {
+                const nx = x + dx;
+                const ny = y + dy;
+                if (nx >= 0 && nx < size2 && ny >= 0 && ny < size2) {
+                    const newIndex = ny * size2 + nx;
+                    if (mineArray2.includes(newIndex)) {
+                        count++;
+                    }
+                    surrounding.push(newIndex);
+                }
+            }
+        }
+        revealedArray2[index] = true;
+
+        if (mineArray2.includes(index)) {
+            cell.classList.add('mine');
+            gameOver2 = true;
+            document.getElementById('challengelosetext').style.display = 'flex';
+
+        } else {
+            cell.textContent = count || '';
+            cell.style.backgroundColor = '#a9aaa9';
+            if (count === 0) {
+                surrounding.forEach(surroundIndex => {
+                    revealCell2(surroundIndex);
+                });
+            }
+        }
+    }
+}
+
+function checkWinCondition2() {
+    if (markedArray2.length === mineArray2.length) {
+        let win = true;
+        for (let i = 0; i < mineArray2.length; i++) {
+            if (!markedArray2.includes(mineArray2[i])) {
+                win = false;
+                break;
+            }
+        }
+
+        if (win) {
+            if (currentChallenge = 1){
+                challenge1level++;
+                document.getElementById('challengewintext').style.display = 'flex';
+            }
+        }
+    }
+}
+
+
 /// Minefield Size ///
 
     let size = 5;
@@ -589,6 +883,7 @@ function loadGame() {
     const scoreElement = document.getElementById('score');
     const minesRetrievedElement = document.getElementById('minesRetrieved');
     const moneyElement = document.getElementById('money');
+    const goldenFlagsElement = document.getElementById('goldenFlags');
     const reputationElement = document.getElementById('reputation');
     const militaryPowerElement = document.getElementById('militaryPower');
     resetButton.addEventListener('click', resetGame);
@@ -610,25 +905,55 @@ function startGame() {
     document.getElementById('minefield').style.gridTemplateColumns = `repeat(${size}, ${cellSize}px)`;
     document.getElementById('minefield').style.gridTemplateRows = `repeat(${size}, ${cellSize}px)`;
     gameOver = false;
-    scoreElement.textContent = `Flags: ${resources.score}`;
+    scoreElement.textContent = `&#x1F6A9; Flags: ${resources.score}`;
     minesRetrievedElement.textContent = `Mines: ${resources.minesRetrieved}`;
     moneyElement.textContent = `Money: ${resources.money}`;
     reputationElement.textContent = `Reputation: ${resources.reputation}`;
     militaryPowerElement.textContent = `Military Power: ${resources.militaryPower}`;
 
-    // Create cells and add them to the minefield
-    for (let i = 0; i < size * size; i++) {
-        const cell = document.createElement('div');
-        cell.classList.add('cell');
-        cell.style.width = `${cellSize}px`;
-        cell.style.height = `${cellSize}px`;
-        cell.addEventListener('click', () => revealCell(i));
-        cell.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
+// Create cells and add them to the minefield
+for (let i = 0; i < size * size; i++) {
+    const cell = document.createElement('div');
+    cell.classList.add('cell');
+    cell.style.width = `${cellSize}px`;
+    cell.style.height = `${cellSize}px`;
+
+    // Normal left-click event for revealing the cell
+    cell.removeEventListener('click', revealCell);
+    cell.addEventListener('click', () => revealCell(i));
+
+    // Right-click event for marking the cell
+    cell.removeEventListener('contextmenu', markCell);
+    cell.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        markCell(i);
+    });
+
+    // Long press event for marking the cell on mobile devices
+    let pressTimer;
+    let start;
+
+if (flagger.upgrades <10){
+ let pressTimer;
+    let start;
+    cell.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        start = Date.now();
+        pressTimer = window.setTimeout(function() {
             markCell(i);
-        });
-        minefield.appendChild(cell);
-    }
+        }, 500);  // time threshold for long press, adjust as necessary
+    }, false);
+
+    cell.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        if (pressTimer) clearTimeout(pressTimer);
+        if (Date.now() - start < 500) {
+            revealCell(i);
+        }
+    }, false);
+}
+    minefield.appendChild(cell);
+}
 
     // Place mines randomly
     for (let i = 0; i < mines; i++) {
@@ -643,6 +968,22 @@ function startGame() {
 
 /// Game Loop ///
 
+    function touchstart(e) {
+        e.preventDefault();
+        if (pressTimer) clearTimeout(pressTimer);
+        if (Date.now() - start < 500) {
+            revealCell(i);
+        }
+    }
+
+    function touchend(e) {
+        e.preventDefault();
+        if (pressTimer) clearTimeout(pressTimer);
+        if (Date.now() - start < 500) {
+            revealCell(i);
+        }
+    }
+
     function gameLoop() {
         let now = Date.now();
         /// Run Sweeper ///
@@ -650,11 +991,33 @@ function startGame() {
             revealRandomNonMineCell();
             sweeper.lastEffect = now;
         }
-        /// Run Flagger ///
-        if (flagger.upgrades > 0 && now - flagger.lastEffect >= 3000/flagger.upgrades) {
-            flagRandomMineCell();
-            flagger.lastEffect = now;
+        if (flagger.upgrades > 0) {
+            let timeInterval;
+            if (synergy2.upgrades >= 1) {
+                timeInterval = 3000/(flagger.upgrades * sweeper.upgrades);
+            } else if (synergy1.upgrades >= 1) {
+                timeInterval = 3000/(flagger.upgrades + sweeper.upgrades);
+            } else {
+                timeInterval = 3000/flagger.upgrades;
+            }
+            if (challenge1level >= 1) {
+                timeInterval = timeInterval*((100-challenge1level)/100);
+            }
+            if (speedflagger.upgrades >= 1) {
+                timeInterval = timeInterval/(1+speedflagger.upgrades);
+            }
+            if (now - flagger.lastEffect >= timeInterval) {
+                let flagsToSet = Math.max(1, Math.floor(16 / timeInterval));
+                flagsPerSecond = (1000 / timeInterval) * flagsToSet;
+                for(let i = 0; i < flagsToSet; i++){
+                    flagRandomMineCell();
+                }
+                flagger.lastEffect = now;
+            }
         }
+        
+        
+        
         /// Run Replenisher ///
         if (replenisher.upgrades > 0) {
             triggerReplenisher();
@@ -698,41 +1061,99 @@ function startGame() {
                     window[`${unit.name}Multiplier`] = 1;
                 }
             });
+        let totalInfantryPower = ((infantry.power * infantry1Multiplier * infantry2Multiplier * infantry3Multiplier));
+        let totalMortarPower = ((mortar.power * mortar1Multiplier * mortar2Multiplier * mortar3Multiplier));
+        let totalEngineerPower = ((engineer.power * engineer1Multiplier * engineer2Multiplier * engineer3Multiplier));
+        let totalArtilleryPower = ((artillery.power * artillery1Multiplier * artillery2Multiplier * artillery3Multiplier));
+        let totalSniperPower = ((sniper.power * sniper1Multiplier * sniper2Multiplier * sniper3Multiplier));
+        let totalTankPower = ((tank.power * tank1Multiplier * tank2Multiplier * tank3Multiplier));
+        let totalBomberPower = ((bomber.power * bomber1Multiplier * bomber2Multiplier * bomber3Multiplier));
+        let totalSpyPower = ((spy.power * spy1Multiplier * spy2Multiplier * spy3Multiplier));
+        let totalJetPower = ((jet.power * jet1Multiplier * jet2Multiplier * jet3Multiplier));
+        let totalStealthPower = ((stealth.power * stealth1Multiplier * stealth2Multiplier * stealth3Multiplier));
+        let totalEmpPower = ((emp.power * emp1Multiplier * emp2Multiplier * emp3Multiplier));
+        let totalCyberPower = ((cyber.power * cyber1Multiplier * cyber2Multiplier * cyber3Multiplier));
+        let totalDecoyPower = ((decoy.power * decoy1Multiplier * decoy2Multiplier * decoy3Multiplier));
+        let totalHelicopterPower = ((helicopter.power * helicopter1Multiplier * helicopter2Multiplier * helicopter3Multiplier));
+        let totalMindcontrolPower = ((mindcontrol.power * mindcontrol1Multiplier * mindcontrol2Multiplier * mindcontrol3Multiplier));
+        let totalCovidPower = ((covid.power * covid1Multiplier * covid2Multiplier * covid3Multiplier));
+        let totalDeathstarPower = ((deathstar.power * deathstar1Multiplier * deathstar2Multiplier * deathstar3Multiplier));
+        let totalSubmarinePower = ((submarine.power * submarine1Multiplier * submarine2Multiplier * submarine3Multiplier));
+        let totalDroidPower = ((droid.power * droid1Multiplier * droid2Multiplier * droid3Multiplier));
+        let totalShieldPower = ((shield.power * shield1Multiplier * shield2Multiplier * shield3Multiplier));
+        let totalMedicPower = ((medic.power * medic1Multiplier * medic2Multiplier * medic3Multiplier));
+        let totalNukePower = ((nuke.power * nuke1Multiplier * nuke2Multiplier * nuke3Multiplier));
+        let totalPlatformPower = ((platform.power * platform1Multiplier * platform2Multiplier * platform3Multiplier));
+        let totalLandminePower = ((landmine.power * landmine1Multiplier * landmine2Multiplier * landmine3Multiplier));
+        let totalNapalmPower = ((napalm.power * napalm1Multiplier * napalm2Multiplier * napalm3Multiplier));
+        let totalDronePower = ((drone.power * drone1Multiplier * drone2Multiplier * drone3Multiplier));
+        let totalChildPower = ((child.power * child1Multiplier * child2Multiplier * child3Multiplier));
+        let totalAiPower = ((ai.power * ai1Multiplier * ai2Multiplier * ai3Multiplier));
 
+        infantry.militaryPowerElement.textContent = totalInfantryPower*10;
+        mortar.militaryPowerElement.textContent = totalMortarPower*10;
+        engineer.militaryPowerElement.textContent = totalEngineerPower*10;
+        artillery.militaryPowerElement.textContent = totalArtilleryPower*10;
+        sniper.militaryPowerElement.textContent = totalSniperPower*10;
+        tank.militaryPowerElement.textContent = totalTankPower*10;
+        bomber.militaryPowerElement.textContent = totalBomberPower*10;
+        spy.militaryPowerElement.textContent = totalSpyPower*10;
+        jet.militaryPowerElement.textContent = totalJetPower*10;
+        stealth.militaryPowerElement.textContent = totalStealthPower*10;
+        emp.militaryPowerElement.textContent = totalEmpPower*10;
+        cyber.militaryPowerElement.textContent = totalCyberPower*10;
+        decoy.militaryPowerElement.textContent = totalDecoyPower*10;
+        helicopter.militaryPowerElement.textContent = totalHelicopterPower*10;
+        mindcontrol.militaryPowerElement.textContent = totalMindcontrolPower*10;
+        covid.militaryPowerElement.textContent = totalCovidPower*10;
+        deathstar.militaryPowerElement.textContent = totalDeathstarPower*10;
+        submarine.militaryPowerElement.textContent = totalSubmarinePower*10;
+        droid.militaryPowerElement.textContent = totalDroidPower*10;
+        shield.militaryPowerElement.textContent = totalShieldPower*10;
+        medic.militaryPowerElement.textContent = totalMedicPower*10;
+        nuke.militaryPowerElement.textContent = totalNukePower*10;
+        platform.militaryPowerElement.textContent = totalPlatformPower*10;
+        landmine.militaryPowerElement.textContent = totalLandminePower*10;
+        napalm.militaryPowerElement.textContent = totalNapalmPower*10;
+        drone.militaryPowerElement.textContent = totalDronePower*10;
+        child.militaryPowerElement.textContent = totalChildPower*10;
+        ai.militaryPowerElement.textContent = totalAiPower*10;
         
-            resources.militaryPower =
-                resources.militaryPower +
-                (((infantry.upgrades * infantry.power * infantry1Multiplier * infantry2Multiplier * infantry3Multiplier)) +
-                ((mortar.upgrades * mortar.power * mortar1Multiplier * mortar2Multiplier * mortar3Multiplier)) +
-                ((engineer.upgrades * engineer.power * engineer1Multiplier * engineer2Multiplier * engineer3Multiplier)) +
-                ((artillery.upgrades * artillery.power * artillery1Multiplier * artillery2Multiplier * artillery3Multiplier)) +
-                ((sniper.upgrades * sniper.power * sniper1Multiplier * sniper2Multiplier * sniper3Multiplier)) +
-                ((tank.upgrades * tank.power * tank1Multiplier * tank2Multiplier * tank3Multiplier)) +
-                ((bomber.upgrades * bomber.power * bomber1Multiplier * bomber2Multiplier * bomber3Multiplier)) +
-                ((spy.upgrades * spy.power * spy1Multiplier * spy2Multiplier * spy3Multiplier)) +
-                ((jet.upgrades * jet.power * jet1Multiplier * jet2Multiplier * jet3Multiplier)) +
-                ((stealth.upgrades * stealth.power * stealth1Multiplier * stealth2Multiplier * stealth3Multiplier)) +
-                ((emp.upgrades * emp.power * emp1Multiplier * emp2Multiplier * emp3Multiplier)) +
-                ((cyber.upgrades * cyber.power * cyber1Multiplier * cyber2Multiplier * cyber3Multiplier)) +
-                ((decoy.upgrades * decoy.power * decoy1Multiplier * decoy2Multiplier * decoy3Multiplier)) +
-                ((helicopter.upgrades * helicopter.power * helicopter1Multiplier * helicopter2Multiplier * helicopter3Multiplier)) +
-                ((submarine.upgrades * submarine.power * submarine1Multiplier * submarine2Multiplier * submarine3Multiplier)) +
-                ((droid.upgrades * droid.power * droid1Multiplier * droid2Multiplier * droid3Multiplier)) +
-                ((shield.upgrades * shield.power * shield1Multiplier * shield2Multiplier * shield3Multiplier)) +
-                ((medic.upgrades * medic.power * medic1Multiplier * medic2Multiplier * medic3Multiplier)) +
-                ((nuke.upgrades * nuke.power * nuke1Multiplier * nuke2Multiplier * nuke3Multiplier)) +
-                ((platform.upgrades * platform.power * platform1Multiplier * platform2Multiplier * platform3Multiplier)) +
-                ((landmine.upgrades * landmine.power * landmine1Multiplier * landmine2Multiplier * landmine3Multiplier)) +
-                ((napalm.upgrades * napalm.power * napalm1Multiplier * napalm2Multiplier * napalm3Multiplier)) +
-                ((drone.upgrades * drone.power * drone1Multiplier * drone2Multiplier * drone3Multiplier)) +
-                ((child.upgrades * child.power * child1Multiplier * child2Multiplier * child3Multiplier)) +
-                ((ai.upgrades * ai.power * ai1Multiplier * ai2Multiplier * ai3Multiplier)) +
-                ((mindcontrol.upgrades * mindcontrol.power * mindcontrol1Multiplier * mindcontrol2Multiplier * mindcontrol3Multiplier)) +
-                ((covid.upgrades * covid.power * covid1Multiplier * covid2Multiplier * covid3Multiplier)) +
-                ((deathstar.upgrades * deathstar.power * deathstar1Multiplier * deathstar2Multiplier * deathstar3Multiplier))/10);
+        militaryPowerPerSecond = (((infantry.upgrades * infantry.power * infantry1Multiplier * infantry2Multiplier * infantry3Multiplier)) +
+            ((mortar.upgrades * mortar.power * mortar1Multiplier * mortar2Multiplier * mortar3Multiplier)) +
+            ((engineer.upgrades * engineer.power * engineer1Multiplier * engineer2Multiplier * engineer3Multiplier)) +
+            ((artillery.upgrades * artillery.power * artillery1Multiplier * artillery2Multiplier * artillery3Multiplier)) +
+            ((sniper.upgrades * sniper.power * sniper1Multiplier * sniper2Multiplier * sniper3Multiplier)) +
+            ((tank.upgrades * tank.power * tank1Multiplier * tank2Multiplier * tank3Multiplier)) +
+            ((bomber.upgrades * bomber.power * bomber1Multiplier * bomber2Multiplier * bomber3Multiplier)) +
+            ((spy.upgrades * spy.power * spy1Multiplier * spy2Multiplier * spy3Multiplier)) +
+            ((jet.upgrades * jet.power * jet1Multiplier * jet2Multiplier * jet3Multiplier)) +
+            ((stealth.upgrades * stealth.power * stealth1Multiplier * stealth2Multiplier * stealth3Multiplier)) +
+            ((emp.upgrades * emp.power * emp1Multiplier * emp2Multiplier * emp3Multiplier)) +
+            ((cyber.upgrades * cyber.power * cyber1Multiplier * cyber2Multiplier * cyber3Multiplier)) +
+            ((decoy.upgrades * decoy.power * decoy1Multiplier * decoy2Multiplier * decoy3Multiplier)) +
+            ((helicopter.upgrades * helicopter.power * helicopter1Multiplier * helicopter2Multiplier * helicopter3Multiplier)) +
+            ((submarine.upgrades * submarine.power * submarine1Multiplier * submarine2Multiplier * submarine3Multiplier)) +
+            ((droid.upgrades * droid.power * droid1Multiplier * droid2Multiplier * droid3Multiplier)) +
+            ((shield.upgrades * shield.power * shield1Multiplier * shield2Multiplier * shield3Multiplier)) +
+            ((medic.upgrades * medic.power * medic1Multiplier * medic2Multiplier * medic3Multiplier)) +
+            ((nuke.upgrades * nuke.power * nuke1Multiplier * nuke2Multiplier * nuke3Multiplier)) +
+            ((platform.upgrades * platform.power * platform1Multiplier * platform2Multiplier * platform3Multiplier)) +
+            ((landmine.upgrades * landmine.power * landmine1Multiplier * landmine2Multiplier * landmine3Multiplier)) +
+            ((napalm.upgrades * napalm.power * napalm1Multiplier * napalm2Multiplier * napalm3Multiplier)) +
+            ((drone.upgrades * drone.power * drone1Multiplier * drone2Multiplier * drone3Multiplier)) +
+            ((child.upgrades * child.power * child1Multiplier * child2Multiplier * child3Multiplier)) +
+            ((ai.upgrades * ai.power * ai1Multiplier * ai2Multiplier * ai3Multiplier)) +
+            ((mindcontrol.upgrades * mindcontrol.power * mindcontrol1Multiplier * mindcontrol2Multiplier * mindcontrol3Multiplier)) +
+            ((covid.upgrades * covid.power * covid1Multiplier * covid2Multiplier * covid3Multiplier)) +
+            ((deathstar.upgrades * deathstar.power * deathstar1Multiplier * deathstar2Multiplier * deathstar3Multiplier))/10);;
+
+            resources.militaryPower =resources.militaryPower+ militaryPowerPerSecond;
             lastMilitary = now;
-            MilitaryPowerPerSecond = resources.militaryPower - oldMilitaryPower;
-          }
+
+            
+        }
+
         
         requestAnimationFrame(gameLoop);
         updateUnlocks();
@@ -827,7 +1248,7 @@ function revealCell(index) {
                 gameOver = true;
                 resources.invasionBonus = invade.upgrades*mines;
                 resources.score = Math.round(resources.score+mines+resources.invasionBonus);
-                scoreElement.textContent = `Flags: ${resources.score}`;
+                scoreElement.textContent = `&#x1F6A9; Flags: ${resources.score}`;
             }
         }
     }
@@ -835,16 +1256,71 @@ function revealCell(index) {
 
 /// Update text ///
     function updateText() {
-        scoreElement.textContent = `Flags: ${formatNumber(resources.score)}`;
-        moneyElement.textContent = `Money: ${formatNumber(resources.money)}`;
-        militaryPowerElement.textContent = `Military Power: ${formatNumber(resources.militaryPower)}`;
-        reputationElement.textContent = `Reputation: ${formatNumber(resources.reputation)}`;
-        minesRetrievedElement.textContent = `Mines: ${formatNumber(resources.minesRetrieved)}`;
+        challenge1leveltext.textContent = challenge1level;
+        challenge1leveltext2.textContent = challenge1level;
+        scoreElement.textContent = `Flags 🚩: ${formatNumber(resources.score)} (${formatNumberdec(flagsPerSecond)}/s)`;
+        moneyElement.textContent = `Money 💰: ${formatNumber(resources.money)}`;
+        goldenFlagsElement.textContent = `Golden Flags 🔱: ${formatNumber(resources.goldenFlags)}`;
+        militaryPowerElement.textContent = `Military Power ⚔: ${formatNumber(resources.militaryPower)} (${formatNumber(militaryPowerPerSecond*10)}/s)`;
+        if (resources.reputation === 0) {
+            reputationElement.textContent = `Reputation 😑: ${formatNumber(resources.reputation)}`;
+        }
+        if (resources.reputation > 0) {
+            reputationElement.textContent = `Reputation 🙂: ${formatNumber(resources.reputation)}`;
+        }
+        if (resources.reputation < 0) {
+            reputationElement.textContent = `Reputation 🙁: ${formatNumber(resources.reputation)}`;
+        }
+        if (resources.reputation > 1000) {
+            reputationElement.textContent = `Reputation 😃: ${formatNumber(resources.reputation)}`;
+        }
+        if (resources.reputation < -1000) {
+            reputationElement.textContent = `Reputation 😢: ${formatNumber(resources.reputation)}`;
+        }
+        if (resources.reputation > 10000) {
+            reputationElement.textContent = `Reputation 😄: ${formatNumber(resources.reputation)}`;
+        }
+        if (resources.reputation < -10000) {
+            reputationElement.textContent = `Reputation 😭: ${formatNumber(resources.reputation)}`;
+        }
+        if (resources.reputation > 100000) {
+            reputationElement.textContent = `Reputation 😁: ${formatNumber(resources.reputation)}`;
+        }
+        if (resources.reputation < -100000) {
+            reputationElement.textContent = `Reputation 😱: ${formatNumber(resources.reputation)}`;
+        }
+        if (resources.reputation > 1000000) {
+            reputationElement.textContent = `Reputation 😆: ${formatNumber(resources.reputation)}`;
+        }
+        if (resources.reputation < -1000000) {
+            reputationElement.textContent = `Reputation 😵: ${formatNumber(resources.reputation)}`;
+        }        
+        if (resources.reputation > 10000000) {
+            reputationElement.textContent = `Reputation 😂: ${formatNumber(resources.reputation)}`;
+        }
+        if (resources.reputation < -10000000) {
+            reputationElement.textContent = `Reputation 😵: ${formatNumber(resources.reputation)}`;
+        }
+        if (resources.reputation > 100000000) {
+            reputationElement.textContent = `Reputation 😂: ${formatNumber(resources.reputation)}`;
+        }
+        if (resources.reputation < -100000000) {
+            reputationElement.textContent = `Reputation 😵: ${formatNumber(resources.reputation)}`;
+        }  
+        if (resources.reputation > 1000000000) {
+            reputationElement.textContent = `Reputation 😂: ${formatNumber(resources.reputation)}`;
+        }
+        if (resources.reputation < -1000000000) {
+            reputationElement.textContent = `Reputation 😵: ${formatNumber(resources.reputation)}`;
+        }   
+
+        minesRetrievedElement.textContent = `Mines 💣: ${formatNumber(resources.minesRetrieved)}`;
         sweeper.ownedElement.textContent = sweeper.upgrades;
+        speedflagger.ownedElement.textContent = speedflagger.upgrades;
+        sweeperOwned2.textContent = sweeper.upgrades;
         sweeper.costElement.textContent = formatNumber(sweeper.upgradeCost);
         flagger.ownedElement.textContent = flagger.upgrades;
         flagger.costElement.textContent = formatNumber(flagger.upgradeCost);
-        replenisher.ownedElement.textContent = replenisher.upgrades;
         replenisher.costElement.textContent = formatNumber(replenisher.upgradeCost);
         retriever.ownedElement.textContent = retriever.upgrades;
         retriever.costElement.textContent = formatNumber(retriever.upgradeCost);
@@ -990,6 +1466,13 @@ function revealCell(index) {
         deathstar1.costElement.textContent = formatNumber(deathstar1.upgradeCost);
         deathstar2.costElement.textContent = formatNumber(deathstar2.upgradeCost);
         deathstar3.costElement.textContent = formatNumber(deathstar3.upgradeCost);
+        heaven.costElement.textContent = formatNumber(heaven.upgradeCost);
+        hell.costElement.textContent = formatNumber(hell.upgradeCost);
+        equilibrium.costElement.textContent = formatNumber(equilibrium.upgradeCost);
+        speedflagger.costElement.textContent = formatNumber(speedflagger.upgradeCost);
+        speedFlaggerCount = speedflagger.upgrades + 1
+        document.getElementById('speedflaggercount').innerHTML = `${speedFlaggerCount}`;
+
     }
 
 /// Update Costs ///
@@ -1026,6 +1509,7 @@ function updateCosts() {
     mindcontrol.upgradeCost = Math.round(mindcontrol.baseCost * mindcontrol.upgradeCostMultiplier ** mindcontrol.upgrades);
     covid.upgradeCost = Math.round(covid.baseCost * covid.upgradeCostMultiplier ** covid.upgrades);
     deathstar.upgradeCost = Math.round(deathstar.baseCost * deathstar.upgradeCostMultiplier ** deathstar.upgrades);
+    speedflagger.upgradeCost = Math.round(speedflagger.baseCost * speedflagger.upgradeCostMultiplier ** speedflagger.upgrades);
   }
   
   function updateUnlocks() {
@@ -1040,6 +1524,45 @@ function updateCosts() {
         document.getElementById('autoSeller-upgrade-div').style.display = 'flex';
     }
 
+    if (invade.upgrades >= 10) {
+        document.getElementById('synergy1-upgrade-div').style.display = 'flex';
+    }
+    if (invade.upgrades >= 25) {
+        document.getElementById('synergy2-upgrade-div').style.display = 'flex';
+        prestigeButton.style.display = 'flex';
+    }
+
+    
+    if (synergy1.upgrades >= 1) {
+        synergy1.upgrades = 1;
+        synergy1.upgradeButton.style.display = 'none';
+        document.getElementById('texts1').style.display = 'flex';
+    }
+
+    if (synergy2.upgrades >= 1) {
+        synergy2.upgrades = 1;
+        synergy2.upgradeButton.style.display = 'none';
+        document.getElementById('texts1').style.display = 'none';
+        document.getElementById('texts2').style.display = 'flex';
+    }
+
+    if (heaven.upgrades >= 1) {
+        heaven.upgrades = 1;
+        heaven.upgradeButton.style.display = 'none';
+        document.getElementById('heavenselect').style.display = 'flex';
+    }
+
+    if (hell.upgrades >= 1) {
+        hell.upgrades = 1;
+        hell.upgradeButton.style.display = 'none';
+        document.getElementById('hellselect').style.display = 'flex';
+    }
+    if (equilibrium.upgrades >= 1) {
+        equilibrium.upgrades = 1;
+        equilibrium.upgradeButton.style.display = 'none';
+        document.getElementById('equilibriumselect').style.display = 'flex';
+    }
+
     if (autoSeller.upgrades >= 1) {
         autoSeller.upgrades = 1;
         autoSeller.upgradeButton.style.display = 'none';
@@ -1048,6 +1571,10 @@ function updateCosts() {
     if (replenisher.upgrades >= 1) {
         replenisher.upgrades = 1;
         replenisher.upgradeButton.style.display = 'none';
+    }
+
+    if (replenisher.upgrades == 0) {
+        replenisher.upgradeButton.style.display = 'flex';
     }
 
     if (resources.money >= 1){
@@ -1541,6 +2068,60 @@ function updateCosts() {
         deathstar3.unlocked = true;
         document.getElementById('deathstar3-div').style.display = 'flex';
     }
+    if (resources.goldenFlags >= 1){
+        tabElement.style.marginBottom = '50px';
+        document.getElementById('goldenFlags').style.display = 'flex';
+    }
+
+    if (invade.upgrades >= 1){
+        document.getElementById('goldenFlags').style.display = 'flex';
+    }
+
+    if (heaven.upgrades >= 1){
+        document.getElementById('goldenFlags').style.display = 'flex';
+    }
+
+    if (hell.upgrades >= 1){   
+        document.getElementById('goldenFlags').style.display = 'flex';
+    }
+
+    if (equilibrium.upgrades >= 1){
+        document.getElementById('goldenFlags').style.display = 'flex';
+    }
+    
+    if (speedflagger.upgrades >= 1){   
+        document.getElementById('goldenFlags').style.display = 'flex';
+    }
+
+
+    infantry.updateUnlocks1();
+    mortar.updateUnlocks1();
+    engineer.updateUnlocks1();
+    artillery.updateUnlocks1();
+    sniper.updateUnlocks1();
+    tank.updateUnlocks1();
+    bomber.updateUnlocks1();
+    spy.updateUnlocks1();
+    jet.updateUnlocks1();
+    stealth.updateUnlocks1();
+    emp.updateUnlocks1();
+    cyber.updateUnlocks1();
+    decoy.updateUnlocks1();
+    helicopter.updateUnlocks1();
+    submarine.updateUnlocks1();
+    droid.updateUnlocks1();
+    shield.updateUnlocks1();
+    medic.updateUnlocks1();
+    nuke.updateUnlocks1();
+    platform.updateUnlocks1();
+    landmine.updateUnlocks1();
+    napalm.updateUnlocks1();
+    drone.updateUnlocks1();
+    child.updateUnlocks1();
+    ai.updateUnlocks1();
+    mindcontrol.updateUnlocks1();
+    covid.updateUnlocks1();
+    deathstar.updateUnlocks1();
   }
 
 ///////////////////////
@@ -1586,34 +2167,36 @@ function updateCosts() {
 function sellMines() {
     if (resources.minesRetrieved > 0) {
         let price;
-        switch (countrySelect.value) {
-            case 'NATO Member':
-                price = 10;
-                break;
-            case 'Neutral Country':
-                price = 20;
-                break;
-            case 'Warsaw Pact Member':
-                price = 30;
-                break;
-            // Add more cases as needed
-            default:
-                price = 0;
-        }
         let reputationImpact;
         switch (countrySelect.value) {
             case 'NATO Member':
+                price = 10;
                 reputationImpact = 1;
-                break; 
+                break;
             case 'Neutral Country':
+                price = 20;
                 reputationImpact = 0;
                 break;
             case 'Warsaw Pact Member':
+                price = 30;
                 reputationImpact = -1;
                 break;
-            // Add more cases as needed
-            default:
+            case 'Heaven':
+                price = 0;
+                reputationImpact = 10;
+                break;
+            case 'Hell':
+                price = 0;
+                reputationImpact = -10;
+                break;
+            case 'Equilibrium':
+                price = 200;
                 reputationImpact = 0;
+                break;
+            default:
+                price = 0;
+                reputationImpact = 0;
+                break;
         }
 
         resources.money += price * resources.minesRetrieved;
@@ -1657,6 +2240,88 @@ function formatNumber(num) {
     return output;
   }
   
+  function formatNumberdec(num) {
+    let isNegative = false;
+    if (num < 0) {
+      isNegative = true;
+      num = Math.abs(num);
+    }
+  
+    let output;
+  
+    if (num >= 1000000000000000) {
+      output = (num / 1000000000000000).toFixed(2) + "q";  // Quadrillions
+    } else if (num >= 1000000000000) {
+      output = (num / 1000000000000).toFixed(2) + "t";  // Trillions
+    } else if (num >= 1000000000) {
+      output = (num / 1000000000).toFixed(2) + "b";  // Billions
+    } else if (num >= 1000000) {
+      output = (num / 1000000).toFixed(2) + "m";  // Millions
+    } else if (num >= 1000) {
+      output = (num / 1000).toFixed(2) + "k";  // Thousands
+    } else {
+      output = num.toFixed(2); // Numbers under 1000, 2 decimal places
+    }
+  
+    if (isNegative) {
+      output = "-" + output;
+    }
+  
+    return output;
+}
+
+/////////////////
+/// Presitge ///
+///////////////
+
+function prestige() {
+    document.getElementById('prestigecheck').style.visibility = 'hidden';
+    document.getElementById('prestigecheck').style.opacity = '0';
+    if (invade.upgrades >= 25){
+          let newGoldenFlags = Math.round((invade.upgrades/25)**4)
+          resources.goldenFlags = resources.goldenFlags + newGoldenFlags;
+
+        console.log('game presitged for: ' + newGoldenFlags + ' golden flags');
+        console.log('total golden flags: ' + resources.goldenFlags);
+        resources.score = 0;
+        resources.money = 0;
+        resources.reputation = 0;
+        resources.minesRetrieved = 0;
+        resources.invasionBonus = 0;
+        resources.militaryPower = 0;
+        flagsPerSecond = 0;
+        replenisher.upgrades = 0;
+        replenisher.costElement.textContent = formatNumber(replenisher.upgradeCost);
+
+
+        for (let unit of gameUnitsArray) {
+            unit.upgrades = 0;
+        
+            if (unit.upgradeDiv) {
+                unit.upgradeDiv.style.display = 'none';
+            }
+        
+            if (unit.upgradeDivElement) {
+                unit.upgradeDivElement.style.display = 'none';
+            }
+        }
+        document.getElementById('sales-div').style.display = 'none';
+        document.getElementById('invade-div').style.display = 'none';
+        prestigeButton.style.display = 'none';
+        document.getElementById('money').style.display = 'none';
+        document.getElementById('score').style.display = 'none';
+        document.getElementById('reputation').style.display = 'none';
+        document.getElementById('minesRetrieved').style.display = 'none';
+        document.getElementById('militaryPower').style.display = 'none';
+        document.getElementById('goldenFlags').style.display = 'none';
+          
+
+          
+resetGame();
+
+    }
+}
+
 ////////////////////////
 /// Initialize Game ///
 //////////////////////
