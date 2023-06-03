@@ -312,7 +312,7 @@ var cnItems = {
     "Realm of Equilibrium ($200) (No Rep)": "平衡境界 ($200)（无声誉）",
     "Size Surge": "尺寸激增",
     "Solve Progressively Larger Minefields, Each completion increases flagger speed by 1%": "逐步解决更大的雷区，每次完成都会将标记速度提高 1%",
-    "Speed Demon (Soon)": "极速恶魔（即将）",
+    "Speed Demon (Soon)": "极速恶魔（即将推出）",
     "Speed Flagging": "速度标记",
     "Sweep & Flag Synergy": "雷 & 旗子 协同作用",
     "Sweepers also flag mines": "旗手也标记地雷",
