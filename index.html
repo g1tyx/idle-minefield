@@ -5,6 +5,8 @@
     <title>idleMinefield</title>
     <link rel="stylesheet" type="text/css" href="styles2.css">
     <link rel="icon" href="logosmall.png">
+    <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4467479395441427"
+     crossorigin="anonymous"></script> -->
 </head>
 <body>
     <script src="chs.js"></script>
@@ -25,7 +27,7 @@
 
 		<div class="subscribe-optin">
 
-			<h1>idleMinefield v0.3.0 (Beta)</h1>
+			<h1>idleMinefield <v0 class="3 2"></v0> (Beta)</h1>
             <p> idleMinefield is an incremental game loosely based on the puzzle game "Minesweeper".</p>
             <h4>What's new?</h4>
 
@@ -84,6 +86,42 @@
                     </div>
             </div> 
 
+            <div>
+                <button onclick="toggleChangeLog('v0.3.1')">v0.3.1 Change Log &#9660;</button>
+                <div id="v0.3.1" style="display: none">
+                  <p>- Fixed flags per second readout (I think)</p>
+                  <p>- Added second challenge</p>
+                  <p>- Added a bonus based on patreon subscribers</p>
+                </div>
+        </div> 
+
+        <div>
+            <button onclick="toggleChangeLog('v0.3.2')">v0.3.2 Change Log &#9660;</button>
+            <div id="v0.3.2" style="display: none">
+              <p>- Fixed flags per second readout again (I think)</p>
+            </div>
+    </div> 
+
+    <div>
+        <button onclick="toggleChangeLog('v0.3.3')">v0.3.3 Change Log &#9660;</button>
+        <div id="v0.3.3" style="display: none">
+          <p>- Fixed flags per second readout again, again, but really this time (I think)</p>
+          <p>- Fixed a bug preventing some upgrades from saving</p>
+          <p>- Fixed a bug preventing mine sales and replenisher being buyable after a prestige</p>
+          <p>- Fixed a bug massively slowing flag and mine gain late game</p>
+          <p>- Flags, mines and military power now continue to increase when the game is minimized or in the backgroud</p>
+          <p>- Increased game performance in when resetting frequently</p>
+        </div>
+</div> 
+
+<div>
+    <button onclick="toggleChangeLog('v0.3.4')">v0.3.4 Change Log &#9660;</button>
+    <div id="v0.3.4" style="display: none">
+      <p>- Fixed a bug preventing prestige upgrades from being carried over on a reset. </p>
+    </div>
+</div> 
+
+
             </div> 
               <script>
                 function toggleChangeLog(id) {
@@ -109,6 +147,8 @@
             <p><b>Money:</b> Money is gained by selling mines, and can be used to purchase military units and upgrades.</p>
             <p><b>Reputation:</b> Reputation is gained and lost by selling mines to various countries. Having exceptionally low or high reputation unlocks some unique upgrades.</p>
             <p><b>Military Power:</b> Military Power is used to invade nations, giving you more land to sweep for mines (larger grid). A larger grid also retruns more mines and flags!</p>
+            <h4>Patreon Credits</h4>
+            <p><b>Ultra Flag Booster:</b> Stabilizations</p>
 			<a href="#" class="optin-close" id="closehelp">&times;</a>
 		</div>
 	</div>
@@ -140,10 +180,13 @@
 
 		<div class="subscribe-optin">
             <div id="challengecontainer">
-                <div id="challenge1heading"><h3>Size Surge</h3></div>
+
+                <div id="challengeheadingdiv"><h3><span id="challengeheading">x</span></h3></div>
+                
             <div id="minefield2"></div>
             <div id="challengewintext"><h4>Game Won!</h4></div>
             <div id="challengelosetext"><h4>Game Lost!</h4></div>
+            <div id="timer">00:00</div>
             <button id="resetchallange">Reset</button>
             </div>
             <a href="#" class="optin-close" id="closechallenge">&times;</a>
@@ -162,10 +205,10 @@
     </div>
 
     <div class="upgrade" id="challenge2">
-        <span class="upgrade-name">Speed Demon (Soon)</span>
-        <div id="challenge2text">Best Time: <span id="challenge2-completed">0</span></div>
+        <span class="upgrade-name">Speed Demon</span>
+        <div id="challenge2text"><p id="bestTime">Best Time: N/A</p>        </span></div>
         <button id="challenge2button">Start</button>
-        <div id="text"><p>Increases Mines Retrieved Based On Your Fastest Solve</p><p>Currently Increasing Mines Recieved by 0%</p></div>
+        <div id="text"><p>Increases Mines Retrieved Based On Your Fastest Solve</p><p>Currently Increasing Mines Recieved by <p id="bonus"></p></p></div>
     </div>
 
     <div class="upgrade" id="challenge3">
@@ -289,7 +332,7 @@
                 <span class="upgrade-name">Invade a Nation</span>
                 <span id="invade-owned">0</span>
                 <button id="invade-upgrade">Invade for <span id="invade-cost">1000</span> Military Power</button>
-                <div id="text">More Land, More Mines!</div>
+                <div id="text">Increases grid size and flags per mine by 1</div>
             </div>
         </div>
     </div>
@@ -976,11 +1019,12 @@
   }
 
     </script>
-    <script src="minesweeper.js"></script>
-    <p class="discord-link">idleMinefield v0.3.0 (Beta) - <a href="https://discord.gg/wYnpctM3gp" target="_blank">Join the Discord!</a> - <a href="" id="howtoplay">How to Play</a> </p>
+
+    <p class="discord-link">idleMinefield v0.3.4 (Beta) - <a href="https://discord.gg/wYnpctM3gp" target="_blank">Join the Discord!</a> - <a href="" id="howtoplay">How to Play</a> </p>
+    <p class="discord-link">Flagger speed currently boosted by <span id="patreoncount">x</span>% for all players thanks to Patreon subscribers! - <a href="https://www.patreon.com/idleMinefield" target="_blank">Contribute Here!</a></p>
     <script type="module">
         // Import the functions you need from the SDKs you need
-        // import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { initializeApp } from "";
         // import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics.js";
         // import { getFirestore, doc, updateDoc, getDoc, FieldValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
         // import { increment } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
@@ -1000,7 +1044,7 @@
         };
       
         // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
+        // const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         const db = getFirestore(app);
         async function sendHeartbeat() {
@@ -1032,8 +1076,39 @@
     }
   }
 
-  setInterval(sendHeartbeat, 15 * 60 * 1000);
+//   setInterval(sendHeartbeat, 15 * 60 * 1000);
+
+  window.fetchPatreonSubscribers = async function() {
+    try {
+        const docRef = doc(db, 'PatreonValues', 'Subscribers');
+
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            // Assuming the field in the document is named "count"
+            const patreon1Subscribers = data.tier1;
+            const patreon2Subscribers = data.tier2;
+            const patreon3Subscribers = data.tier3;
+
+            // Set your variable here
+            // Note: you might need to do something else depending on your exact use case and the scope of the "patreonSubscribers" variable
+            // This example assumes "patreonSubscribers" is a global variable.
+            window.patreon1Subscribers = patreon1Subscribers;
+            window.patreon2Subscribers = patreon2Subscribers;
+            window.patreon3Subscribers = patreon3Subscribers;
+
+        } else {
+            console.log("No such document!");
+        }
+    } catch (error) {
+        console.error("Error getting document: ", error);
+    }
+}
+
+
 </script>
+<script src="minesweeper.js"></script>
 <!--客服 开始-->
 <script src="//g8hh.github.io/static/js/jquery.min.js"></script>
 <link rel="stylesheet" href="//g8hh.github.io/static/css/kf.css" type="text/css" media="screen" charset="utf-8">

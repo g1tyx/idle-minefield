@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 ///////////////////////
 
 class GameUnit {
-    constructor(name, upgradeCost, upgradeCostMultiplier, baseCost) {
+    constructor(name, upgradeCost, upgradeCostMultiplier, baseCost, resource = 'money') {
         this.name = name;
         this.upgradeCost = upgradeCost;
         this.upgradeCostMultiplier = upgradeCostMultiplier;
@@ -14,7 +14,7 @@ class GameUnit {
         this.upgradeButton = document.getElementById(`${name}-upgrade`);
         this.upgradeDivElement = document.getElementById(`${name}-upgrade-div`);
         this.costElement = document.getElementById(`${name}-cost`);
-        this.upgradeButton.addEventListener('click', () => this.buyUpgrade(resources, resourceMapping[name]));
+        this.upgradeButton.addEventListener('click', () => this.buyUpgrade(resources, resource));
         this.lastEffect = Date.now();
         this.baseCost = baseCost;
         this.upgrades = 0;
@@ -26,10 +26,12 @@ class GameUnit {
             resourceObject[resourceName] -= this.upgradeCost;
             this.upgrades++;
             this.upgradeCost *= this.upgradeCostMultiplier;
-            updateCosts();
-            updateText();
         } else {
         }
+    }
+
+    calculateCosts() {
+        this.upgradeCost = Math.round(this.baseCost * this.upgradeCostMultiplier ** this.upgrades);
     }
 }
 
@@ -51,19 +53,19 @@ class MilitaryUnit extends GameUnit {
     }
 
 
-let sweeper = new GameUnit('sweeper', 1, 1.5, 1);
-let flagger = new GameUnit('flagger', 5, 1.5, 5);
-let replenisher = new GameUnit('replenisher', 10, 999, 10);    
-let retriever = new GameUnit('retriever', 10, 10, 10);
-let sales = new GameUnit('sales', 100, 999, 100);
-let invade = new GameUnit('invade', 1000, 1.5, 1000);
-let autoSeller = new GameUnit('autoSeller', 5000, 1.5, 5000);
-let synergy1 = new GameUnit('synergy1', 50000, 1.5, 50000);
-let synergy2 = new GameUnit('synergy2', 250000, 1.5, 250000);
-let heaven = new GameUnit('heaven', 1, 1.5, 1);
-let hell = new GameUnit('hell', 1, 1.5, 1);
-let equilibrium = new GameUnit('equilibrium', 5, 1.5, 5);
-let speedflagger = new GameUnit('speedflagger', 1, 1.75, 1);
+let sweeper = new GameUnit('sweeper', 1, 1.5, 1, 'score');
+let flagger = new GameUnit('flagger', 5, 1.5, 5, 'score');
+let replenisher = new GameUnit('replenisher', 10, 999, 10, 'score');    
+let retriever = new GameUnit('retriever', 10, 10, 10, 'score');
+let sales = new GameUnit('sales', 100, 999, 100, 'score');
+let invade = new GameUnit('invade', 1000, 1.75, 1000,  'militaryPower');
+let autoSeller = new GameUnit('autoSeller', 5000, 1.5, 5000, 'score');
+let synergy1 = new GameUnit('synergy1', 50000, 1.5, 50000, 'score');
+let synergy2 = new GameUnit('synergy2', 250000, 1.5, 250000, 'score');
+let heaven = new GameUnit('heaven', 5, 1.5, 5, 'goldenFlags');
+let hell = new GameUnit('hell', 5, 1.5, 5, 'goldenFlags');
+let equilibrium = new GameUnit('equilibrium', 15, 1.5, 15, 'goldenFlags');
+let speedflagger = new GameUnit('speedflagger', 1, 1.75, 1, 'goldenFlags');
 
 
 /// Neutral Military Units ///
@@ -196,7 +198,7 @@ let gameUnitsArray = [
     stealth, stealth1, stealth2, stealth3, emp, emp1, emp2, emp3, cyber, cyber1, cyber2, cyber3,child,child1,child2,child3,ai,ai1,ai2,ai3,mindcontrol,mindcontrol1,mindcontrol2,mindcontrol3,
     decoy, decoy1, decoy2, decoy3, helicopter, helicopter1, helicopter2, helicopter3, submarine, submarine1, submarine2, submarine3, droid, droid1, droid2, droid3,
     shield, shield1, shield2, shield3, medic, medic1, medic2, medic3, nuke, nuke1, nuke2, nuke3, platform, platform1, platform2, platform3,
-    landmine, landmine1, landmine2, landmine3, napalm, napalm1, napalm2, napalm3, drone, drone1, drone2, drone3
+    landmine, landmine1, landmine2, landmine3, napalm, napalm1, napalm2, napalm3, drone, drone1, drone2, drone3, covid, covid1, covid2, covid3, deathstar, deathstar1, deathstar2, deathstar3, heaven, hell, equilibrium, speedflagger
   ];
   
 
@@ -254,7 +256,18 @@ closechallenge.addEventListener('click', closeChallenge);
 const challenge1button = document.getElementById('challenge1button');
 challenge1button.addEventListener('click', startChallenge1); 
 const resetchallange = document.getElementById('resetchallange');
-resetchallange.addEventListener('click', startChallenge1);
+resetchallange.addEventListener('click', startChallenge);
+const challenge1heading = document.getElementById('challenge1heading');
+const challenge2heading = document.getElementById('challenge2heading');
+
+function startChallenge(){
+    if (currentChallenge == 1){
+        startChallenge1();
+    }
+    if (currentChallenge == 2){
+        startChallenge2();
+    }
+}
 
 let currentChallenge = 0;
 let challenge1level = 0;
@@ -262,6 +275,11 @@ let challenge1leveltext = document.getElementById('challenge1leveltext');
 let challenge1leveltext2 = document.getElementById('challenge1leveltext2');
 let challengewintext = document.getElementById('challengewintext');
 let challengelosetext = document.getElementById('challengelosetext');
+
+/// Challenge 2 ///
+const challenge2button = document.getElementById('challenge2button');
+challenge2button.addEventListener('click', startChallenge2);
+
 /// Challenge 1 ///
 
 function closeChallenge(e){
@@ -281,18 +299,38 @@ function startChallenge1() {
     startGame2();
 }
 
+function startChallenge2() {
+    document.getElementById('challengewindow').style.visibility = 'visible';
+    document.getElementById('challengewindow').style.opacity = '1';
+    resetGame3();
+    size3 = 16;
+    mines3 = 40;
+    currentChallenge = 2;
+    startGame3();
+}
+
 //////////////////////
 /// Save Elements ///
 ////////////////////
 
 /// Player ///
+let gameSpeed = 0; 
+let bestTimeBonus = 0;
+let totalPatreonReduction = 0;
+let patreon1Subscribers = 0;
+let patreon2Subscribers = 0;
+let patreon3Subscribers = 0;
+const patreonCount = document.getElementById('patreoncount');
+const challengeheading = document.getElementById('challengeheading');
 
 let sweeperOwned2 = document.getElementById(`sweeper-owned2`);
 let lastMilitary = Date.now();
 let lastSave = Date.now();
+let lastFetch = Date.now();
 let autoSellerActive = false;
 militaryPowerPerSecond = 0;
 let flagsPerSecond = 0;
+let flagsPerMS = 0;
 
 let resources = {
     score: 0,  // flags
@@ -304,412 +342,228 @@ let resources = {
     goldenFlags: 0,
 };
 
-
-const resourceMapping = {
-    'sweeper': 'score',
-    'flagger': 'score',
-    'replenisher': 'score',
-    'retriever': 'score',
-    'sales': 'score',
-    'invade': 'militaryPower',
-    'infantry': 'money',
-    'mortar': 'money',
-    'engineer': 'money',
-    'artillery': 'money',
-    'sniper': 'money',
-    'tank': 'money',
-    'bomber': 'money',
-    'spy': 'money',
-    'jet': 'money',
-    'stealth': 'money',
-    'emp': 'money',
-    'cyber': 'money',
-    'decoy': 'money',
-    'helicopter': 'money',
-    'submarine': 'money',
-    'droid': 'money',
-    'shield': 'money',
-    'medic': 'money',
-    'nuke': 'money',
-    'platform': 'money',
-    'landmine': 'money',
-    'napalm': 'money',
-    'drone': 'money',
-    'child': 'money',
-    'ai': 'money',
-    'mindcontrol': 'money',
-    'covid': 'money',
-    'deathstar': 'money',
-    'infantry1': 'money',
-    'infantry2': 'money',
-    'infantry3': 'money',
-    'mortar1': 'money',
-    'mortar2': 'money',
-    'mortar3': 'money',
-    'engineer1': 'money',
-    'engineer2': 'money',
-    'engineer3': 'money',
-    'artillery1': 'money',
-    'artillery2': 'money',
-    'artillery3': 'money',
-    'sniper1': 'money',
-    'sniper2': 'money',
-    'sniper3': 'money',
-    'tank1': 'money',
-    'tank2': 'money',
-    'tank3': 'money',
-    'bomber1': 'money',
-    'bomber2': 'money',
-    'bomber3': 'money',
-    'spy1': 'money',
-    'spy2': 'money',
-    'spy3': 'money',
-    'jet1': 'money',
-    'jet2': 'money',
-    'jet3': 'money',
-    'stealth1': 'money',
-    'stealth2': 'money',
-    'stealth3': 'money',
-    'emp1': 'money',
-    'emp2': 'money',
-    'emp3': 'money',
-    'cyber1': 'money',
-    'cyber2': 'money',
-    'cyber3': 'money',
-    'decoy1': 'money',
-    'decoy2': 'money',  
-    'decoy3': 'money',
-    'helicopter1': 'money',
-    'helicopter2': 'money',
-    'helicopter3': 'money',
-    'submarine1': 'money',
-    'submarine2': 'money',
-    'submarine3': 'money',
-    'droid1': 'money',
-    'droid2': 'money',
-    'droid3': 'money',
-    'shield1': 'money',
-    'shield2': 'money',
-    'shield3': 'money',
-    'medic1': 'money',
-    'medic2': 'money',
-    'medic3': 'money',
-    'nuke1': 'money',
-    'nuke2': 'money',
-    'nuke3': 'money',
-    'platform1': 'money',
-    'platform2': 'money',
-    'platform3': 'money',
-    'landmine1': 'money',
-    'landmine2': 'money',
-    'landmine3': 'money',
-    'napalm1': 'money',
-    'napalm2': 'money',
-    'napalm3': 'money',
-    'drone1': 'money',
-    'drone2': 'money',
-    'drone3': 'money',
-    'child1': 'money',
-    'child2': 'money',
-    'child3': 'money',
-    'ai1': 'money',
-    'ai2': 'money',
-    'ai3': 'money',
-    'mindcontrol1': 'money',
-    'mindcontrol2': 'money',
-    'mindcontrol3': 'money',
-    'covid1': 'money',
-    'covid2': 'money',
-    'covid3': 'money',
-    'deathstar1': 'money',
-    'deathstar2': 'money',
-    'deathstar3': 'money',
-    'autoSeller': 'score',
-    'synergy1': 'score',
-    'synergy2': 'score',
-    'heaven': 'goldenFlags',
-    'hell': 'goldenFlags',
-    'equilibrium': 'goldenFlags',
-    'speedflagger': 'goldenFlags',
-};
-
-/// Save Function ///
-
 function saveGame() {
     let gameData = {
         resources: resources,
-        sweeper: sweeper.upgrades,
-        flagger: flagger.upgrades,
-        replenisher: replenisher.upgrades,
-        retriever: retriever.upgrades,
-        sales: sales.upgrades,
-        infantry: infantry.upgrades,
-        mortar: mortar.upgrades,
-        invade: invade.upgrades,
-        engineer: engineer.upgrades,
-        artillery: artillery.upgrades,
-        sniper: sniper.upgrades,
-        tank: tank.upgrades,
-        bomber: bomber.upgrades,
-        spy: spy.upgrades,
-        jet: jet.upgrades,
-        stealth: stealth.upgrades,
-        emp: emp.upgrades,
-        cyber: cyber.upgrades,
-        decoy: decoy.upgrades,
-        helicopter: helicopter.upgrades,
-        submarine: submarine.upgrades,
-        droid: droid.upgrades,
-        shield: shield.upgrades,
-        medic: medic.upgrades,
-        nuke: nuke.upgrades,
-        platform: platform.upgrades,
-        landmine: landmine.upgrades,
-        napalm: napalm.upgrades,
-        drone: drone.upgrades,
-        child: child.upgrades,
-        ai: ai.upgrades,
-        mindcontrol: mindcontrol.upgrades,
-        covid: covid.upgrades,
-        deathstar: deathstar.upgrades,
-        infantry1: infantry1.upgrades,
-        infantry2: infantry2.upgrades,
-        infantry3: infantry3.upgrades,
-        mortar1: mortar1.upgrades,
-        mortar2: mortar2.upgrades,
-        mortar3: mortar3.upgrades,
-        engineer1: engineer1.upgrades,
-        engineer2: engineer2.upgrades,
-        engineer3: engineer3.upgrades,
-        artillery1: artillery1.upgrades,
-        artillery2: artillery2.upgrades,
-        artillery3: artillery3.upgrades,
-        sniper1: sniper1.upgrades, 
-        sniper2: sniper2.upgrades,
-        sniper3: sniper3.upgrades,
-        tank1: tank1.upgrades,
-        tank2: tank2.upgrades,
-        tank3: tank3.upgrades,
-        bomber1: bomber1.upgrades,
-        bomber2: bomber2.upgrades,
-        bomber3: bomber3.upgrades,
-        spy1: spy1.upgrades,
-        spy2: spy2.upgrades,
-        spy3: spy3.upgrades,
-        jet1: jet1.upgrades,
-        jet2: jet2.upgrades,
-        jet3: jet3.upgrades,
-        stealth1: stealth1.upgrades,
-        stealth2: stealth2.upgrades,
-        stealth3: stealth3.upgrades,
-        emp1: emp1.upgrades,
-        emp2: emp2.upgrades,
-        emp3: emp3.upgrades,
-        cyber1: cyber1.upgrades,
-        cyber2: cyber2.upgrades,
-        cyber3: cyber3.upgrades,
-        decoy1: decoy1.upgrades,
-        decoy2: decoy2.upgrades,
-        decoy3: decoy3.upgrades,
-        helicopter1: helicopter1.upgrades,
-        helicopter2: helicopter2.upgrades,
-        helicopter3: helicopter3.upgrades,
-        submarine1: submarine1.upgrades,
-        submarine2: submarine2.upgrades,
-        submarine3: submarine3.upgrades,
-        droid1: droid1.upgrades,
-        droid2: droid2.upgrades,
-        droid3: droid3.upgrades,
-        shield1: shield1.upgrades,
-        shield2: shield2.upgrades,
-        shield3: shield3.upgrades,
-        medic1: medic1.upgrades,
-        medic2: medic2.upgrades,
-        medic3: medic3.upgrades,
-        nuke1: nuke1.upgrades,
-        nuke2: nuke2.upgrades,
-        nuke3: nuke3.upgrades,
-        platform1: platform1.upgrades,
-        platform2: platform2.upgrades,
-        platform3: platform3.upgrades,
-        landmine1: landmine1.upgrades,
-        landmine2: landmine2.upgrades,
-        landmine3: landmine3.upgrades,
-        napalm1: napalm1.upgrades,
-        napalm2: napalm2.upgrades,
-        napalm3: napalm3.upgrades,
-        drone1: drone1.upgrades,
-        drone2: drone2.upgrades,
-        drone3: drone3.upgrades,
-        child1: child1.upgrades,
-        child2: child2.upgrades,
-        child3: child3.upgrades,
-        ai1: ai1.upgrades,
-        ai2: ai2.upgrades,
-        ai3: ai3.upgrades,
-        mindcontrol1: mindcontrol1.upgrades,
-        mindcontrol2: mindcontrol2.upgrades,
-        mindcontrol3: mindcontrol3.upgrades,
-        covid1: covid1.upgrades,
-        covid2: covid2.upgrades,
-        covid3: covid3.upgrades,
-        deathstar1: deathstar1.upgrades,
-        deathstar2: deathstar2.upgrades,
-        deathstar3: deathstar3.upgrades,
-        autoSeller: autoSeller.upgrades,
-        synergy1: synergy1.upgrades,
-        synergy2: synergy2.upgrades,
         challenge1level: challenge1level,
-        heaven: heaven.upgrades,
-        hell: hell.upgrades,
-        equilibrium: equilibrium.upgrades,
-        speedflagger: speedflagger.upgrades,
+        bestTime: bestTime,
     };
+    
+    for(let unit of gameUnitsArray){
+        gameData[unit.name] = unit.upgrades; // Here
+    }
+    
     localStorage.setItem('gameData', JSON.stringify(gameData));
     console.log('Game saved:', gameData);
 }
 
-
-/// Load Function ///
-
 function loadGame() {
     let savedData = localStorage.getItem('gameData');
     if (savedData === null) return;  // No saved data found
-    
-    savedData = JSON.parse(savedData);
 
+    savedData = JSON.parse(savedData);
+    
     resources = savedData.resources ?? resources;
     resources.goldenFlags = resources.goldenFlags ?? 0
-    sweeper.upgrades = savedData.sweeper ?? sweeper.upgrades;
-    flagger.upgrades = savedData.flagger ?? flagger.upgrades;
-    replenisher.upgrades = savedData.replenisher ?? replenisher.upgrades;
-    retriever.upgrades = savedData.retriever ?? retriever.upgrades;
-    sales.upgrades = savedData.sales ?? sales.upgrades;
-    infantry.upgrades = savedData.infantry ?? infantry.upgrades;
-    mortar.upgrades = savedData.mortar ?? mortar.upgrades;
-    invade.upgrades = savedData.invade ?? invade.upgrades;
-    engineer.upgrades = savedData.engineer ?? engineer.upgrades;
-    artillery.upgrades = savedData.artillery ?? artillery.upgrades;
-    sniper.upgrades = savedData.sniper ?? sniper.upgrades;
-    tank.upgrades = savedData.tank ?? tank.upgrades;
-    bomber.upgrades = savedData.bomber ?? bomber.upgrades;
-    spy.upgrades = savedData.spy ?? spy.upgrades;
-    jet.upgrades = savedData.jet ?? jet.upgrades;
-    stealth.upgrades = savedData.stealth ?? stealth.upgrades;
-    emp.upgrades = savedData.emp ?? emp.upgrades;
-    cyber.upgrades = savedData.cyber ?? cyber.upgrades;
-    decoy.upgrades = savedData.decoy ?? decoy.upgrades;
-    helicopter.upgrades = savedData.helicopter ?? helicopter.upgrades;
-    submarine.upgrades = savedData.submarine ?? submarine.upgrades;
-    droid.upgrades = savedData.droid ?? droid.upgrades;
-    shield.upgrades = savedData.shield ?? shield.upgrades;
-    medic.upgrades = savedData.medic ?? medic.upgrades;
-    nuke.upgrades = savedData.nuke ?? nuke.upgrades;
-    platform.upgrades = savedData.platform ?? platform.upgrades;
-    landmine.upgrades = savedData.landmine ?? landmine.upgrades;
-    napalm.upgrades = savedData.napalm ?? napalm.upgrades;
-    drone.upgrades = savedData.drone ?? drone.upgrades;
-    child.upgrades = savedData.child ?? child.upgrades;
-    ai.upgrades = savedData.ai ?? ai.upgrades;
-    mindcontrol.upgrades = savedData.mindcontrol ?? mindcontrol.upgrades;
-    covid.upgrades = savedData.covid ?? covid.upgrades;
-    deathstar.upgrades = savedData.deathstar ?? deathstar.upgrades;
-    infantry1.upgrades = savedData.infantry1 ?? infantry1.upgrades;
-    infantry2.upgrades = savedData.infantry2 ?? infantry2.upgrades;
-    infantry3.upgrades = savedData.infantry3 ?? infantry3.upgrades;
-    mortar1.upgrades = savedData.mortar1 ?? mortar1.upgrades;
-    mortar2.upgrades = savedData.mortar2 ?? mortar2.upgrades;
-    mortar3.upgrades = savedData.mortar3 ?? mortar3.upgrades;
-    engineer1.upgrades = savedData.engineer1 ?? engineer1.upgrades;
-    engineer2.upgrades = savedData.engineer2 ?? engineer2.upgrades;
-    engineer3.upgrades = savedData.engineer3 ?? engineer3.upgrades;
-    artillery1.upgrades = savedData.artillery1 ?? artillery1.upgrades; 
-    artillery2.upgrades = savedData.artillery2 ?? artillery2.upgrades;
-    artillery3.upgrades = savedData.artillery3 ?? artillery3.upgrades;
-    sniper1.upgrades = savedData.sniper1 ?? sniper1.upgrades;
-    sniper2.upgrades = savedData.sniper2 ?? sniper2.upgrades;
-    sniper3.upgrades = savedData.sniper3 ?? sniper3.upgrades;
-    tank1.upgrades = savedData.tank1 ?? tank1.upgrades;
-    tank2.upgrades = savedData.tank2 ?? tank2.upgrades;
-    tank3.upgrades = savedData.tank3 ?? tank3.upgrades;
-    bomber1.upgrades = savedData.bomber1 ?? bomber1.upgrades;
-    bomber2.upgrades = savedData.bomber2 ?? bomber2.upgrades;
-    bomber3.upgrades = savedData.bomber3 ?? bomber3.upgrades;
-    spy1.upgrades = savedData.spy1 ?? spy1.upgrades;
-    spy2.upgrades = savedData.spy2 ?? spy2.upgrades;
-    spy3.upgrades = savedData.spy3 ?? spy3.upgrades;
-    jet1.upgrades = savedData.jet1 ?? jet1.upgrades;
-    jet2.upgrades = savedData.jet2 ?? jet2.upgrades;
-    jet3.upgrades = savedData.jet3 ?? jet3.upgrades;
-    stealth1.upgrades = savedData.stealth1 ?? stealth1.upgrades;
-    stealth2.upgrades = savedData.stealth2 ?? stealth2.upgrades;
-    stealth3.upgrades = savedData.stealth3 ?? stealth3.upgrades;
-    emp1.upgrades = savedData.emp1 ?? emp1.upgrades;
-    emp2.upgrades = savedData.emp2 ?? emp2.upgrades;
-    emp3.upgrades = savedData.emp3 ?? emp3.upgrades;
-    cyber1.upgrades = savedData.cyber1 ?? cyber1.upgrades;
-    cyber2.upgrades = savedData.cyber2 ?? cyber2.upgrades;
-    cyber3.upgrades = savedData.cyber3 ?? cyber3.upgrades;
-    decoy1.upgrades = savedData.decoy1 ?? decoy1.upgrades;
-    decoy2.upgrades = savedData.decoy2 ?? decoy2.upgrades;
-    decoy3.upgrades = savedData.decoy3 ?? decoy3.upgrades;
-    helicopter1.upgrades = savedData.helicopter1 ?? helicopter1.upgrades;
-    helicopter2.upgrades = savedData.helicopter2 ?? helicopter2.upgrades;
-    helicopter3.upgrades = savedData.helicopter3 ?? helicopter3.upgrades;
-    submarine1.upgrades = savedData.submarine1 ?? submarine1.upgrades;
-    submarine2.upgrades = savedData.submarine2 ?? submarine2.upgrades;
-    submarine3.upgrades = savedData.submarine3 ?? submarine3.upgrades;
-    droid1.upgrades = savedData.droid1 ?? droid1.upgrades;
-    droid2.upgrades = savedData.droid2 ?? droid2.upgrades;
-    droid3.upgrades = savedData.droid3 ?? droid3.upgrades;
-    shield1.upgrades = savedData.shield1 ?? shield1.upgrades;
-    shield2.upgrades = savedData.shield2 ?? shield2.upgrades;
-    shield3.upgrades = savedData.shield3 ?? shield3.upgrades;
-    medic1.upgrades = savedData.medic1 ?? medic1.upgrades;
-    medic2.upgrades = savedData.medic2 ?? medic2.upgrades;
-    medic3.upgrades = savedData.medic3 ?? medic3.upgrades;
-    nuke1.upgrades = savedData.nuke1 ?? nuke1.upgrades;
-    nuke2.upgrades = savedData.nuke2 ?? nuke2.upgrades;
-    nuke3.upgrades = savedData.nuke3 ?? nuke3.upgrades;
-    napalm1.upgrades = savedData.napalm1 ?? napalm1.upgrades;
-    napalm2.upgrades = savedData.napalm2 ?? napalm2.upgrades;
-    napalm3.upgrades = savedData.napalm3 ?? napalm3.upgrades;
-    landmine1.upgrades = savedData.mine1 ?? landmine1.upgrades;
-    landmine2.upgrades = savedData.mine2 ?? landmine2.upgrades;
-    landmine3.upgrades = savedData.mine3 ?? landmine3.upgrades;
-    drone1.upgrades = savedData.drone1 ?? drone1.upgrades;
-    drone2.upgrades = savedData.drone2 ?? drone2.upgrades;
-    drone3.upgrades = savedData.drone3 ?? drone3.upgrades;
-    child1.upgrades = savedData.child1 ?? child1.upgrades;
-    child2.upgrades = savedData.child2 ?? child2.upgrades;
-    child3.upgrades = savedData.child3 ?? child3.upgrades;
-    ai1.upgrades = savedData.ai1 ?? ai1.upgrades;
-    ai2.upgrades = savedData.ai2 ?? ai2.upgrades;
-    ai3.upgrades = savedData.ai3 ?? ai3.upgrades;
-    mindcontrol1.upgrades = savedData.mindcontrol1 ?? mindcontrol1.upgrades;
-    mindcontrol2.upgrades = savedData.mindcontrol2 ?? mindcontrol2.upgrades;
-    mindcontrol3.upgrades = savedData.mindcontrol3 ?? mindcontrol3.upgrades;
-    covid1.upgrades = savedData.covid1 ?? covid1.upgrades;
-    covid2.upgrades = savedData.covid2 ?? covid2.upgrades;
-    covid3.upgrades = savedData.covid3 ?? covid3.upgrades;
-    deathstar1.upgrades = savedData.deathstar1 ?? deathstar1.upgrades;
-    deathstar2.upgrades = savedData.deathstar2 ?? deathstar2.upgrades;
-    deathstar3.upgrades = savedData.deathstar3 ?? deathstar3.upgrades;
-    autoSeller.upgrades = savedData.autoSeller ?? autoSeller.upgrades;
-    synergy1.upgrades = savedData.synergy1 ?? synergy1.upgrades;
-    synergy2.upgrades = savedData.synergy2 ?? synergy2.upgrades;
-    challenge1level = savedData.challenge1level ?? challenge1level;
-    heaven.upgrades = savedData.heaven ?? heaven.upgrades;
-    hell.upgrades = savedData.hell ?? hell.upgrades;
-    equilibrium.upgrades = savedData.equilibrium ?? equilibrium.upgrades;
     speedflagger.upgrades = savedData.speedflagger ?? speedflagger.upgrades;
-
-
+    challenge1level = savedData.challenge1level ?? challenge1level;
+    bestTime = savedData.bestTime ?? bestTime;
+    
+    for(let unit of gameUnitsArray){
+        unit.upgrades = savedData[unit.name] ?? unit.upgrades; // And here
+    }
+    
     console.log('Game loaded:', savedData);
 }
+
 ///////////////////////
 /// Other Elements ///
 /////////////////////
+
+let size3 = 16;
+let mines3 = 40;
+let mineArray3 = [];
+let markedArray3 = [];
+let revealedArray3 = [];
+let gameOver3 = false;
+let minefield2 = document.getElementById('minefield2');
+let startTime, timerId, bestTime;
+
+function formatTime(seconds) {
+    let minutes = Math.floor(seconds / 60);
+    let remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
+
+function startTimer() {
+    startTime = Date.now();
+    timerId = setInterval(() => {
+        let currentTime = Math.floor((Date.now() - startTime) / 1000);
+        document.getElementById('timer').textContent = formatTime(currentTime);
+    }, 1000);
+}
+
+function endGame(win) {
+    clearInterval(timerId);
+    if (win) {
+        let elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+        if (!bestTime || elapsedTime < bestTime) {
+            bestTime = elapsedTime;
+            document.getElementById('bestTime').textContent = `Best Time: ${formatTime(bestTime)}`;
+        }
+    }
+}
+
+function startGame3() {
+    mineArray3 = [];
+    markedArray3 = [];
+    revealedArray3 = [];
+    let cellSize3 = size3 > 10 ? 40 * (10 / size3) : 40;
+    let fontSize3 = cellSize3 / 2; 
+    let imageSize3 = fontSize3 ; 
+    document.documentElement.style.setProperty('--cell-size3', `${cellSize3}px`);
+    document.documentElement.style.setProperty('--font-size3', `${fontSize3}px`);
+    document.documentElement.style.setProperty('--image-size3', `${imageSize3}px`);
+    minefield2.style.gridTemplateColumns = `repeat(${size3}, ${cellSize3}px)`;
+    minefield2.style.gridTemplateRows = `repeat(${size3}, ${cellSize3}px)`;
+    gameOver3 = false;
+    document.getElementById('challengelosetext').style.display = 'none';
+    document.getElementById('challengewintext').style.display = 'none';
+    challengeheading.textContent = 'Speed Demon'
+    startTimer();
+    
+    for (let i = 0; i < size3 * size3; i++) {
+        const cell = document.createElement('div2');
+        cell.classList.add('cell2');
+        cell.style.width = `${cellSize3}px`;
+        cell.style.height = `${cellSize3}px`;
+        cell.addEventListener('click', () => revealCell3(i));
+        cell.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            markCell3(i);
+        });
+
+        let pressTimer;
+        let start;
+        cell.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            start = Date.now();
+            pressTimer = window.setTimeout(function() {
+                markCell3(i);
+            }, 500);  
+        }, false);
+
+        cell.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            if (pressTimer) clearTimeout(pressTimer);
+            if (Date.now() - start < 500) {
+                revealCell3(i);
+            }
+        }, false);
+
+        minefield2.appendChild(cell);
+    }
+
+    for (let i = 0; i < mines3; i++) {
+        let index;
+        do {
+            index = Math.floor(Math.random() * size3 * size3);
+        } while (mineArray3.includes(index));
+        mineArray3.push(index);
+    }
+    revealedArray3 = Array(size3*size3).fill(false);
+}
+
+function resetGame3() {
+    size3 = 16;
+    mines3 = 40;
+    mineArray3 = [];
+    markedArray3 = [];
+    revealedArray3 = [];
+    gameOver3 = false;
+
+    while (minefield2.firstChild) {
+        minefield2.firstChild.remove();
+    }
+    endGame(false);
+}
+
+function markCell3(index) {
+    if (!gameOver3) {
+        const cell = minefield2.childNodes[index];
+        if (!cell.classList.contains('flagged') && cell.textContent === '') {
+            cell.classList.add('flagged');
+            markedArray3.push(index);
+            checkWinCondition3();
+        } else if (cell.classList.contains('flagged')) {
+            cell.classList.remove('flagged');
+            const markIndex = markedArray3.indexOf(index);
+            markedArray3.splice(markIndex, 1);
+        }
+    }
+}
+
+function revealCell3(index) {
+    if (!gameOver3 && !markedArray3.includes(index) && !revealedArray3[index]) {
+        const cell = minefield2.childNodes[index];
+        let count = 0;
+        const x = index % size3;
+        const y = Math.floor(index / size3);
+        let surrounding = [];
+
+        for (let dx = -1; dx <= 1; dx++) {
+            for (let dy = -1; dy <= 1; dy++) {
+                const nx = x + dx;
+                const ny = y + dy;
+                if (nx >= 0 && nx < size3 && ny >= 0 && ny < size3) {
+                    const newIndex = ny * size3 + nx;
+                    if (mineArray3.includes(newIndex)) {
+                        count++;
+                    }
+                    surrounding.push(newIndex);
+                }
+            }
+        }
+        revealedArray3[index] = true;
+
+        if (mineArray3.includes(index)) {
+            cell.classList.add('mine');
+            gameOver3 = true;
+            endGame(false);
+            document.getElementById('challengelosetext').style.display = 'flex';
+        } else {
+            cell.textContent = count || '';
+            cell.style.backgroundColor = '#a9aaa9';
+            if (count === 0) {
+                surrounding.forEach(surroundIndex => {
+                    revealCell3(surroundIndex);
+                });
+            }
+        }
+    }
+}
+
+function checkWinCondition3() {
+    if (markedArray3.length === mineArray3.length) {
+        let win = true;
+        for (let i = 0; i < mineArray3.length; i++) {
+            if (!markedArray3.includes(mineArray3[i])) {
+                win = false;
+                break;
+            }
+        }
+
+        if (win) {
+            endGame(true);
+            if (currentChallenge = 2){
+                goldenFlags++;
+                document.getElementById('challengewintext').style.display = 'flex';
+            }
+        }
+    }
+}
+
 
 /// Minefield2 /// 
 let size2 = 5;
@@ -718,7 +572,7 @@ let mineArray2 = [];
 let markedArray2 = [];
 let revealedArray2 = [];
 let gameOver2 = false;
-let minefield2 = document.getElementById('minefield2');
+let minefield3 = document.getElementById('minefield3');
 
 function startGame2() {
     mineArray2 = [];
@@ -736,6 +590,7 @@ function startGame2() {
     gameOver2 = false;
     document.getElementById('challengelosetext').style.display = 'none';
     document.getElementById('challengewintext').style.display = 'none';
+    challengeheading.textContent = 'Size Surge'
 
     for (let i = 0; i < size2 * size2; i++) {
         const cell = document.createElement('div2');
@@ -744,7 +599,6 @@ function startGame2() {
         cell.style.height = `${cellSize2}px`;
 
         // Listeners for the second minefield
-        console.log('oh no');
         cell.addEventListener('click', () => revealCell2(i));
         cell.addEventListener('contextmenu', (e) => {
             e.preventDefault();
@@ -986,6 +840,11 @@ if (flagger.upgrades <10){
 
     function gameLoop() {
         let now = Date.now();
+        if (now - lastFetch >= 900000) {
+            fetchAndLog();
+            lastFetch = now;
+        }
+
         /// Run Sweeper ///
         if (sweeper.upgrades > 0 && now - sweeper.lastEffect >= 1000/sweeper.upgrades) {
             revealRandomNonMineCell();
@@ -1006,12 +865,37 @@ if (flagger.upgrades <10){
             if (speedflagger.upgrades >= 1) {
                 timeInterval = timeInterval/(1+speedflagger.upgrades);
             }
+        
+            let patreon1Reduction = (patreon1Subscribers > 0) ? (1 - (patreon1Subscribers * 0.01)) : 1;
+            timeInterval = timeInterval * patreon1Reduction;
+
+        
             if (now - flagger.lastEffect >= timeInterval) {
-                let flagsToSet = Math.max(1, Math.floor(16 / timeInterval));
-                flagsPerSecond = (1000 / timeInterval) * flagsToSet;
+             let flagsToSet = Math.max(1, Math.floor(16 / timeInterval));
+         //    console.log('flags to set', flagsToSet);
+
+             let intervalsNeeded = Math.ceil(mines / flagsToSet);
+             let timePerReset = intervalsNeeded * timeInterval;
+
+        //     console.log('time per reset', timePerReset);
+
+             let minesPerReset = mines+resources.invasionBonus;
+
+        //     console.log('invade upgrades', invade.upgrades, '* mines', mines)
+
+        //     console.log('invasion bonus', resources.invasionBonus );
+
+        //     console.log('mines per reset', minesPerReset);
+                flagsPerMS = minesPerReset/timePerReset;
+                flagsPerSecond = (minesPerReset/timePerReset)*1000;
+                console.log('Game contains ', mines, ' mines, the time interval is currently ', timeInterval, ' causing ', flagsToSet, ' flags to be set each time interval. Solving will require ', intervalsNeeded, ' time intervals, making the time per reset ', timePerReset);
+
                 for(let i = 0; i < flagsToSet; i++){
+
                     flagRandomMineCell();
+
                 }
+                
                 flagger.lastEffect = now;
             }
         }
@@ -1019,8 +903,10 @@ if (flagger.upgrades <10){
         
         
         /// Run Replenisher ///
-        if (replenisher.upgrades > 0) {
+        if (replenisher.upgrades > 0 && gameOver == true) {
             triggerReplenisher();
+            gameSpeed = now-replenisher.lastEffect;
+            console.log('Game speed is ', gameSpeed);
             replenisher.lastEffect = now;
         }
 
@@ -1039,14 +925,15 @@ if (flagger.upgrades <10){
             saveGame();
             lastSave = now;
         }
+
+
         /// Run Military ///
         if (now - lastMilitary >= 100) {
-            let oldMilitaryPower = resources.militaryPower;
 
             let unitArray = [infantry1, infantry2, infantry3, mortar1, mortar2, mortar3, engineer1, engineer2, engineer3,
                 artillery1, artillery2, artillery3, sniper1, sniper2, sniper3, tank1, tank2, tank3, bomber1, bomber2, bomber3,
                 spy1, spy2, spy3, jet1, jet2, jet3, stealth1, stealth2, stealth3, emp1, emp2, emp3, cyber1, cyber2, cyber3, decoy1,
-                decoy2, decoy3, helicopter1, helicopter2, helicopter3, mindcontrol1, mindcontrol2, mindcontrol3, 
+                decoy2, decoy3, helicopter1, helicopter2, helicopter3, mindcontrol1, mindcontrol2, mindcontrol3,
                 covid1, covid2, covid3, deathstar1, deathstar2, deathstar3, submarine1, submarine2, submarine3, droid1,
                 droid2, droid3, shield1, shield2, shield3, medic1, medic2, medic3, nuke1, nuke2, nuke3, platform1, platform2, platform3,
                 landmine1, landmine2, landmine3, napalm1, napalm2, napalm3, drone1, drone2, drone3, child1, child2, child3, ai1, ai2, ai3];
@@ -1147,8 +1034,9 @@ if (flagger.upgrades <10){
             ((mindcontrol.upgrades * mindcontrol.power * mindcontrol1Multiplier * mindcontrol2Multiplier * mindcontrol3Multiplier)) +
             ((covid.upgrades * covid.power * covid1Multiplier * covid2Multiplier * covid3Multiplier)) +
             ((deathstar.upgrades * deathstar.power * deathstar1Multiplier * deathstar2Multiplier * deathstar3Multiplier))/10);;
-
-            resources.militaryPower =resources.militaryPower+ militaryPowerPerSecond;
+            console.log((now-lastMilitary)/100);
+            console.log(formatNumber(militaryPowerPerSecond));
+            resources.militaryPower =resources.militaryPower+ (((now-lastMilitary)/100)*militaryPowerPerSecond);
             lastMilitary = now;
 
             
@@ -1158,9 +1046,15 @@ if (flagger.upgrades <10){
         requestAnimationFrame(gameLoop);
         updateUnlocks();
         updateText();
-        updateCosts();
     }
 
+
+    async function fetchAndLog() {
+        await window.fetchPatreonSubscribers();
+        patreon1Subscribers = window.patreon1Subscribers;
+        patreon2Subscribers = window.patreon2Subscribers;
+        patreon3Subscribers = window.patreon3Subscribers;
+    }
 /// Reset Game ///
 
     function resetGame() {
@@ -1245,272 +1139,67 @@ function revealCell(index) {
             }
 
             if (win) {
+                if (flagger.upgrades > 3 && replenisher.upgrades >= 1){
+                gameOver = true;
+                resources.invasionBonus = invade.upgrades*mines;
+                let gameSpeedSeconds = gameSpeed/1000;
+                resources.score = Math.round(resources.score+(flagsPerSecond*gameSpeedSeconds));
+       //         console.log(mines+resources.invasionBonus);
+
+                scoreElement.textContent = `&#x1F6A9; Flags: ${resources.score}`;
+            }
+            else{
                 gameOver = true;
                 resources.invasionBonus = invade.upgrades*mines;
                 resources.score = Math.round(resources.score+mines+resources.invasionBonus);
+       //         console.log(mines+resources.invasionBonus);
                 scoreElement.textContent = `&#x1F6A9; Flags: ${resources.score}`;
-            }
+        }}
         }
     }
 
 
 /// Update text ///
-    function updateText() {
-        challenge1leveltext.textContent = challenge1level;
-        challenge1leveltext2.textContent = challenge1level;
-        scoreElement.textContent = `Flags 🚩: ${formatNumber(resources.score)} (${formatNumberdec(flagsPerSecond)}/s)`;
-        moneyElement.textContent = `Money 💰: ${formatNumber(resources.money)}`;
-        goldenFlagsElement.textContent = `Golden Flags 🔱: ${formatNumber(resources.goldenFlags)}`;
-        militaryPowerElement.textContent = `Military Power ⚔: ${formatNumber(resources.militaryPower)} (${formatNumber(militaryPowerPerSecond*10)}/s)`;
-        if (resources.reputation === 0) {
-            reputationElement.textContent = `Reputation 😑: ${formatNumber(resources.reputation)}`;
+function updateText() {
+    document.getElementById('bestTime').textContent = `Best Time: ${formatTime(bestTime)}`;
+    patreonCount.textContent = patreon1Subscribers;
+    challenge1leveltext.textContent = challenge1level;
+    challenge1leveltext2.textContent = challenge1level;
+    scoreElement.textContent = `Flags 🚩: ${formatNumber(resources.score)} (${formatNumberdec(flagsPerSecond)}/s)`;
+    moneyElement.textContent = `Money 💰: ${formatNumber(resources.money)}`;
+    goldenFlagsElement.textContent = `Golden Flags 🔱: ${formatNumber(resources.goldenFlags)}`;
+    militaryPowerElement.textContent = `Military Power ⚔: ${formatNumber(resources.militaryPower)} (${formatNumber(militaryPowerPerSecond*10)}/s)`;
+    
+    // Reputation Section
+    const reputationScores = [0, 1000, -1000, 10000, -10000, 100000, -100000, 1000000, -1000000, 10000000, -10000000, 100000000, -100000000, 1000000000, -1000000000];
+    const reputationEmojis = ['😑', '🙂', '🙁', '😃', '😢', '😄', '😭', '😁', '😱', '😆', '😵', '😂', '😵', '😂', '😵'];
+    
+    for (let i = 0; i < reputationScores.length; i++) {
+        if (resources.reputation > reputationScores[i]) {
+            reputationElement.textContent = `Reputation ${reputationEmojis[i]}: ${formatNumber(resources.reputation)}`;
         }
-        if (resources.reputation > 0) {
-            reputationElement.textContent = `Reputation 🙂: ${formatNumber(resources.reputation)}`;
-        }
-        if (resources.reputation < 0) {
-            reputationElement.textContent = `Reputation 🙁: ${formatNumber(resources.reputation)}`;
-        }
-        if (resources.reputation > 1000) {
-            reputationElement.textContent = `Reputation 😃: ${formatNumber(resources.reputation)}`;
-        }
-        if (resources.reputation < -1000) {
-            reputationElement.textContent = `Reputation 😢: ${formatNumber(resources.reputation)}`;
-        }
-        if (resources.reputation > 10000) {
-            reputationElement.textContent = `Reputation 😄: ${formatNumber(resources.reputation)}`;
-        }
-        if (resources.reputation < -10000) {
-            reputationElement.textContent = `Reputation 😭: ${formatNumber(resources.reputation)}`;
-        }
-        if (resources.reputation > 100000) {
-            reputationElement.textContent = `Reputation 😁: ${formatNumber(resources.reputation)}`;
-        }
-        if (resources.reputation < -100000) {
-            reputationElement.textContent = `Reputation 😱: ${formatNumber(resources.reputation)}`;
-        }
-        if (resources.reputation > 1000000) {
-            reputationElement.textContent = `Reputation 😆: ${formatNumber(resources.reputation)}`;
-        }
-        if (resources.reputation < -1000000) {
-            reputationElement.textContent = `Reputation 😵: ${formatNumber(resources.reputation)}`;
-        }        
-        if (resources.reputation > 10000000) {
-            reputationElement.textContent = `Reputation 😂: ${formatNumber(resources.reputation)}`;
-        }
-        if (resources.reputation < -10000000) {
-            reputationElement.textContent = `Reputation 😵: ${formatNumber(resources.reputation)}`;
-        }
-        if (resources.reputation > 100000000) {
-            reputationElement.textContent = `Reputation 😂: ${formatNumber(resources.reputation)}`;
-        }
-        if (resources.reputation < -100000000) {
-            reputationElement.textContent = `Reputation 😵: ${formatNumber(resources.reputation)}`;
-        }  
-        if (resources.reputation > 1000000000) {
-            reputationElement.textContent = `Reputation 😂: ${formatNumber(resources.reputation)}`;
-        }
-        if (resources.reputation < -1000000000) {
-            reputationElement.textContent = `Reputation 😵: ${formatNumber(resources.reputation)}`;
-        }   
-
-        minesRetrievedElement.textContent = `Mines 💣: ${formatNumber(resources.minesRetrieved)}`;
-        sweeper.ownedElement.textContent = sweeper.upgrades;
-        speedflagger.ownedElement.textContent = speedflagger.upgrades;
-        sweeperOwned2.textContent = sweeper.upgrades;
-        sweeper.costElement.textContent = formatNumber(sweeper.upgradeCost);
-        flagger.ownedElement.textContent = flagger.upgrades;
-        flagger.costElement.textContent = formatNumber(flagger.upgradeCost);
-        replenisher.costElement.textContent = formatNumber(replenisher.upgradeCost);
-        retriever.ownedElement.textContent = retriever.upgrades;
-        retriever.costElement.textContent = formatNumber(retriever.upgradeCost);
-        infantry.costElement.textContent = formatNumber(infantry.upgradeCost);
-        infantry.ownedElement.textContent = infantry.upgrades;
-        invade.costElement.textContent = formatNumber(invade.upgradeCost);
-        invade.ownedElement.textContent = invade.upgrades;
-        mortar.costElement.textContent = formatNumber(mortar.upgradeCost);
-        mortar.ownedElement.textContent = mortar.upgrades;
-        engineer.costElement.textContent = formatNumber(engineer.upgradeCost);
-        engineer.ownedElement.textContent = engineer.upgrades;
-        artillery.costElement.textContent = formatNumber(artillery.upgradeCost);
-        artillery.ownedElement.textContent = artillery.upgrades;
-        sniper.costElement.textContent = formatNumber(sniper.upgradeCost);
-        sniper.ownedElement.textContent = sniper.upgrades;
-        tank.costElement.textContent = formatNumber(tank.upgradeCost);
-        tank.ownedElement.textContent = tank.upgrades;
-        bomber.costElement.textContent = formatNumber(bomber.upgradeCost);
-        bomber.ownedElement.textContent = bomber.upgrades;
-        spy.costElement.textContent = formatNumber(spy.upgradeCost);
-        spy.ownedElement.textContent = spy.upgrades;
-        jet.costElement.textContent = formatNumber(jet.upgradeCost);
-        jet.ownedElement.textContent = jet.upgrades;
-        stealth.costElement.textContent = formatNumber(stealth.upgradeCost);
-        stealth.ownedElement.textContent = stealth.upgrades;
-        emp.costElement.textContent = formatNumber(emp.upgradeCost);
-        emp.ownedElement.textContent = emp.upgrades;
-        cyber.costElement.textContent = formatNumber(cyber.upgradeCost);
-        cyber.ownedElement.textContent = cyber.upgrades;
-        decoy.costElement.textContent = formatNumber(decoy.upgradeCost);
-        decoy.ownedElement.textContent = decoy.upgrades;
-        helicopter.costElement.textContent = formatNumber(helicopter.upgradeCost);
-        helicopter.ownedElement.textContent = helicopter.upgrades;
-        submarine.costElement.textContent = formatNumber(submarine.upgradeCost);
-        submarine.ownedElement.textContent = submarine.upgrades;
-        droid.costElement.textContent = formatNumber(droid.upgradeCost);
-        droid.ownedElement.textContent = droid.upgrades;
-        shield.costElement.textContent = formatNumber(shield.upgradeCost);
-        shield.ownedElement.textContent = shield.upgrades;
-        medic.costElement.textContent = formatNumber(medic.upgradeCost);
-        medic.ownedElement.textContent = medic.upgrades;
-        nuke.costElement.textContent = formatNumber(nuke.upgradeCost);
-        nuke.ownedElement.textContent = nuke.upgrades;
-        platform.costElement.textContent = formatNumber(platform.upgradeCost);
-        platform.ownedElement.textContent = platform.upgrades;
-        landmine.costElement.textContent = formatNumber(landmine.upgradeCost);
-        landmine.ownedElement.textContent = landmine.upgrades;
-        napalm.costElement.textContent = formatNumber(napalm.upgradeCost);
-        napalm.ownedElement.textContent = napalm.upgrades;
-        drone.costElement.textContent = formatNumber(drone.upgradeCost);
-        drone.ownedElement.textContent = drone.upgrades;
-        child.costElement.textContent = formatNumber(child.upgradeCost);
-        child.ownedElement.textContent = child.upgrades;
-        ai.costElement.textContent = formatNumber(ai.upgradeCost);
-        ai.ownedElement.textContent = ai.upgrades;
-        mindcontrol.costElement.textContent = formatNumber(mindcontrol.upgradeCost);
-        mindcontrol.ownedElement.textContent = mindcontrol.upgrades;
-        covid.costElement.textContent = formatNumber(covid.upgradeCost);
-        covid.ownedElement.textContent = covid.upgrades;
-        deathstar.costElement.textContent = formatNumber(deathstar.upgradeCost);
-        deathstar.ownedElement.textContent = deathstar.upgrades;
-        infantry1.costElement.textContent = formatNumber(infantry1.upgradeCost);
-        infantry2.costElement.textContent = formatNumber(infantry2.upgradeCost);
-        infantry3.costElement.textContent = formatNumber(infantry3.upgradeCost);
-        mortar1.costElement.textContent = formatNumber(mortar1.upgradeCost);
-        mortar2.costElement.textContent = formatNumber(mortar2.upgradeCost);
-        mortar3.costElement.textContent = formatNumber(mortar3.upgradeCost);
-        engineer1.costElement.textContent = formatNumber(engineer1.upgradeCost);
-        engineer2.costElement.textContent = formatNumber(engineer2.upgradeCost);
-        engineer3.costElement.textContent = formatNumber(engineer3.upgradeCost);
-        artillery1.costElement.textContent = formatNumber(artillery1.upgradeCost);
-        artillery2.costElement.textContent = formatNumber(artillery2.upgradeCost);
-        artillery3.costElement.textContent = formatNumber(artillery3.upgradeCost);
-        sniper1.costElement.textContent = formatNumber(sniper1.upgradeCost);
-        sniper2.costElement.textContent = formatNumber(sniper2.upgradeCost);
-        sniper3.costElement.textContent = formatNumber(sniper3.upgradeCost);
-        tank1.costElement.textContent = formatNumber(tank1.upgradeCost);
-        tank2.costElement.textContent = formatNumber(tank2.upgradeCost);
-        tank3.costElement.textContent = formatNumber(tank3.upgradeCost);
-        bomber1.costElement.textContent = formatNumber(bomber1.upgradeCost);
-        bomber2.costElement.textContent = formatNumber(bomber2.upgradeCost);
-        bomber3.costElement.textContent = formatNumber(bomber3.upgradeCost);
-        spy1.costElement.textContent = formatNumber(spy1.upgradeCost);
-        spy2.costElement.textContent = formatNumber(spy2.upgradeCost);
-        spy3.costElement.textContent = formatNumber(spy3.upgradeCost);
-        jet1.costElement.textContent = formatNumber(jet1.upgradeCost);
-        jet2.costElement.textContent = formatNumber(jet2.upgradeCost);
-        jet3.costElement.textContent = formatNumber(jet3.upgradeCost);
-        stealth1.costElement.textContent = formatNumber(stealth1.upgradeCost);
-        stealth2.costElement.textContent = formatNumber(stealth2.upgradeCost);
-        stealth3.costElement.textContent = formatNumber(stealth3.upgradeCost);
-        emp1.costElement.textContent = formatNumber(emp1.upgradeCost);
-        emp2.costElement.textContent = formatNumber(emp2.upgradeCost);
-        emp3.costElement.textContent = formatNumber(emp3.upgradeCost);
-        cyber1.costElement.textContent = formatNumber(cyber1.upgradeCost);
-        cyber2.costElement.textContent = formatNumber(cyber2.upgradeCost);
-        cyber3.costElement.textContent = formatNumber(cyber3.upgradeCost);
-        decoy1.costElement.textContent = formatNumber(decoy1.upgradeCost);
-        decoy2.costElement.textContent = formatNumber(decoy2.upgradeCost);
-        decoy3.costElement.textContent = formatNumber(decoy3.upgradeCost);
-        helicopter1.costElement.textContent = formatNumber(helicopter1.upgradeCost);
-        helicopter2.costElement.textContent = formatNumber(helicopter2.upgradeCost);
-        helicopter3.costElement.textContent = formatNumber(helicopter3.upgradeCost);
-        submarine1.costElement.textContent = formatNumber(submarine1.upgradeCost);
-        submarine2.costElement.textContent = formatNumber(submarine2.upgradeCost);
-        submarine3.costElement.textContent = formatNumber(submarine3.upgradeCost);
-        droid1.costElement.textContent = formatNumber(droid1.upgradeCost);
-        droid2.costElement.textContent = formatNumber(droid2.upgradeCost);
-        droid3.costElement.textContent = formatNumber(droid3.upgradeCost);
-        shield1.costElement.textContent = formatNumber(shield1.upgradeCost);
-        shield2.costElement.textContent = formatNumber(shield2.upgradeCost);
-        shield3.costElement.textContent = formatNumber(shield3.upgradeCost);
-        medic1.costElement.textContent = formatNumber(medic1.upgradeCost);
-        medic2.costElement.textContent = formatNumber(medic2.upgradeCost);
-        medic3.costElement.textContent = formatNumber(medic3.upgradeCost);
-        nuke1.costElement.textContent = formatNumber(nuke1.upgradeCost);
-        nuke2.costElement.textContent = formatNumber(nuke2.upgradeCost);
-        nuke3.costElement.textContent = formatNumber(nuke3.upgradeCost);
-        platform1.costElement.textContent = formatNumber(platform1.upgradeCost);
-        platform2.costElement.textContent = formatNumber(platform2.upgradeCost);
-        platform3.costElement.textContent = formatNumber(platform3.upgradeCost);
-        landmine1.costElement.textContent = formatNumber(landmine1.upgradeCost);
-        landmine2.costElement.textContent = formatNumber(landmine2.upgradeCost);
-        landmine3.costElement.textContent = formatNumber(landmine3.upgradeCost);
-        napalm1.costElement.textContent = formatNumber(napalm1.upgradeCost);
-        napalm2.costElement.textContent = formatNumber(napalm2.upgradeCost);
-        napalm3.costElement.textContent = formatNumber(napalm3.upgradeCost);
-        drone1.costElement.textContent = formatNumber(drone1.upgradeCost);
-        drone2.costElement.textContent = formatNumber(drone2.upgradeCost);
-        drone3.costElement.textContent = formatNumber(drone3.upgradeCost);
-        child1.costElement.textContent = formatNumber(child1.upgradeCost);
-        child2.costElement.textContent = formatNumber(child2.upgradeCost);
-        child3.costElement.textContent = formatNumber(child3.upgradeCost);
-        ai1.costElement.textContent = formatNumber(ai1.upgradeCost);
-        ai2.costElement.textContent = formatNumber(ai2.upgradeCost);
-        ai3.costElement.textContent = formatNumber(ai3.upgradeCost);
-        mindcontrol1.costElement.textContent = formatNumber(mindcontrol1.upgradeCost);
-        mindcontrol2.costElement.textContent = formatNumber(mindcontrol2.upgradeCost);
-        mindcontrol3.costElement.textContent = formatNumber(mindcontrol3.upgradeCost);
-        covid1.costElement.textContent = formatNumber(covid1.upgradeCost);
-        covid2.costElement.textContent = formatNumber(covid2.upgradeCost);
-        covid3.costElement.textContent = formatNumber(covid3.upgradeCost);
-        deathstar1.costElement.textContent = formatNumber(deathstar1.upgradeCost);
-        deathstar2.costElement.textContent = formatNumber(deathstar2.upgradeCost);
-        deathstar3.costElement.textContent = formatNumber(deathstar3.upgradeCost);
-        heaven.costElement.textContent = formatNumber(heaven.upgradeCost);
-        hell.costElement.textContent = formatNumber(hell.upgradeCost);
-        equilibrium.costElement.textContent = formatNumber(equilibrium.upgradeCost);
-        speedflagger.costElement.textContent = formatNumber(speedflagger.upgradeCost);
-        speedFlaggerCount = speedflagger.upgrades + 1
-        document.getElementById('speedflaggercount').innerHTML = `${speedFlaggerCount}`;
-
     }
 
-/// Update Costs ///
-function updateCosts() {
-    sweeper.upgradeCost = Math.round(sweeper.baseCost * sweeper.upgradeCostMultiplier ** sweeper.upgrades);
-    flagger.upgradeCost = Math.round(flagger.baseCost * flagger.upgradeCostMultiplier ** flagger.upgrades);
-    retriever.upgradeCost = Math.round(retriever.baseCost * retriever.upgradeCostMultiplier ** retriever.upgrades);
-    infantry.upgradeCost = Math.round(infantry.baseCost * infantry.upgradeCostMultiplier ** infantry.upgrades);
-    invade.upgradeCost = Math.round(invade.baseCost * invade.upgradeCostMultiplier ** invade.upgrades);
-    mortar.upgradeCost = Math.round(mortar.baseCost * mortar.upgradeCostMultiplier ** mortar.upgrades);
-    engineer.upgradeCost = Math.round(engineer.baseCost * engineer.upgradeCostMultiplier ** engineer.upgrades);
-    artillery.upgradeCost = Math.round(artillery.baseCost * artillery.upgradeCostMultiplier ** artillery.upgrades);
-    sniper.upgradeCost = Math.round(sniper.baseCost * sniper.upgradeCostMultiplier ** sniper.upgrades);
-    tank.upgradeCost = Math.round(tank.baseCost * tank.upgradeCostMultiplier ** tank.upgrades);
-    bomber.upgradeCost = Math.round(bomber.baseCost * bomber.upgradeCostMultiplier ** bomber.upgrades);
-    spy.upgradeCost = Math.round(spy.baseCost * spy.upgradeCostMultiplier ** spy.upgrades);
-    jet.upgradeCost = Math.round(jet.baseCost * jet.upgradeCostMultiplier ** jet.upgrades);
-    stealth.upgradeCost = Math.round(stealth.baseCost * stealth.upgradeCostMultiplier ** stealth.upgrades);
-    emp.upgradeCost = Math.round(emp.baseCost * emp.upgradeCostMultiplier ** emp.upgrades);
-    cyber.upgradeCost = Math.round(cyber.baseCost * cyber.upgradeCostMultiplier ** cyber.upgrades);
-    decoy.upgradeCost = Math.round(decoy.baseCost * decoy.upgradeCostMultiplier ** decoy.upgrades);
-    helicopter.upgradeCost = Math.round(helicopter.baseCost * helicopter.upgradeCostMultiplier ** helicopter.upgrades);
-    submarine.upgradeCost = Math.round(submarine.baseCost * submarine.upgradeCostMultiplier ** submarine.upgrades);
-    droid.upgradeCost = Math.round(droid.baseCost * droid.upgradeCostMultiplier ** droid.upgrades);
-    shield.upgradeCost = Math.round(shield.baseCost * shield.upgradeCostMultiplier ** shield.upgrades);
-    medic.upgradeCost = Math.round(medic.baseCost * medic.upgradeCostMultiplier ** medic.upgrades);
-    nuke.upgradeCost = Math.round(nuke.baseCost * nuke.upgradeCostMultiplier ** nuke.upgrades);
-    platform.upgradeCost = Math.round(platform.baseCost * platform.upgradeCostMultiplier ** platform.upgrades);
-    landmine.upgradeCost = Math.round(landmine.baseCost * landmine.upgradeCostMultiplier ** landmine.upgrades);
-    napalm.upgradeCost = Math.round(napalm.baseCost * napalm.upgradeCostMultiplier ** napalm.upgrades);
-    drone.upgradeCost = Math.round(drone.baseCost * drone.upgradeCostMultiplier ** drone.upgrades);
-    child.upgradeCost = Math.round(child.baseCost * child.upgradeCostMultiplier ** child.upgrades);
-    ai.upgradeCost = Math.round(ai.baseCost * ai.upgradeCostMultiplier ** ai.upgrades);
-    mindcontrol.upgradeCost = Math.round(mindcontrol.baseCost * mindcontrol.upgradeCostMultiplier ** mindcontrol.upgrades);
-    covid.upgradeCost = Math.round(covid.baseCost * covid.upgradeCostMultiplier ** covid.upgrades);
-    deathstar.upgradeCost = Math.round(deathstar.baseCost * deathstar.upgradeCostMultiplier ** deathstar.upgrades);
-    speedflagger.upgradeCost = Math.round(speedflagger.baseCost * speedflagger.upgradeCostMultiplier ** speedflagger.upgrades);
-  }
+    // Mines
+    minesRetrievedElement.textContent = `Mines 💣: ${formatNumber(resources.minesRetrieved)}`;
+
+    // Units
+    for (let unit of gameUnitsArray) {
+        unit.calculateCosts();
+        if (unit.costElement) {
+            unit.costElement.textContent = formatNumber(unit.upgradeCost);
+        }
+        if (unit.ownedElement) {
+            unit.ownedElement.textContent = unit.upgrades;
+        }
+    }
+
+    // Special handling for speedflagger
+    speedflagger.costElement.textContent = formatNumber(speedflagger.upgradeCost);
+    speedFlaggerCount = speedflagger.upgrades + 1;
+    document.getElementById('speedflaggercount').innerHTML = `${speedFlaggerCount}`;
+}
+
   
   function updateUnlocks() {
     /// document.getElementById('score').style.display = 'flex'; ///
@@ -1700,8 +1389,8 @@ function updateCosts() {
             document.getElementById('medic-div').style.display = 'flex';
         }
         if (resources.reputation <= -10000000){
-            mind.unlocked = true;
-            document.getElementById('mind-div').style.display = 'flex';
+            mindcontrol.unlocked = true;
+            document.getElementById('mindcontrol-div').style.display = 'flex';
         } 
     }
     if (resources.money >= 500000000000){
@@ -1742,7 +1431,7 @@ function updateCosts() {
     }
     if (infantry.upgrades >= 50){
         infantry3.unlocked = true;
-        document.getElementById('infantry-div').style.display = 'flex';
+        document.getElementById('infantry3-div').style.display = 'flex';
     }
     if (mortar.upgrades >= 10){
         mortar1.unlocked = true;
@@ -2152,15 +1841,32 @@ function updateCosts() {
 
     function retrieveMines() {
         if (retriever.upgrades > 0) {
+            if (flagger.upgrades > 3 && replenisher.upgrades >= 1 && mines >= 10) {
+                let baseChance = 0.10 * retriever.upgrades;
+                bestTimeBonus = bestTime ? 25 / bestTime : 0;
+                document.getElementById('bonus').textContent = `${(bestTimeBonus * 100).toFixed(2)}%`;
+                let gameSpeedSeconds = gameSpeed/1000;
+                resources.minesRetrieved = Math.round(resources.minesRetrieved+((flagsPerSecond*gameSpeedSeconds)* (baseChance + bestTimeBonus)));
+                console.log(formatNumber((flagsPerSecond)* (baseChance + bestTimeBonus)));
+
+            }
+            else {
             for (let i = markedArray.length - 1; i >= 0; i--) {
-                if (Math.random() <= 0.10 * retriever.upgrades) {
+                // base chance is 0.10 * retriever.upgrades
+                let baseChance = 0.10 * retriever.upgrades;
+                // increase base chance based on bestTime
+                bestTimeBonus = bestTime ? 25 / bestTime : 0;
+                document.getElementById('bonus').textContent = `${(bestTimeBonus * 100).toFixed(2)}%`;
+                if (Math.random() <= baseChance + bestTimeBonus) {
                     resources.minesRetrieved += (invade.upgrades + 1);
-                    // Remove the mine from the markedArray
                     markedArray.splice(i, 1);
                 }
             }
+            }
         }
-    } 
+
+    }
+    
 
 /// Sell Mines ///
 
@@ -2212,26 +1918,39 @@ function sellMines() {
 
 function formatNumber(num) {
     let isNegative = false;
+    if (num == 0){
+        return '0';
+    }
     if (num < 0) {
       isNegative = true;
       num = Math.abs(num);
     }
   
-    let output;
+    let units = [
+      '', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc', 'Ud', 'Dd', 
+      'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Od', 'Nd', 'V', 'Uv', 'Dv', 'Tv', 'Qav', 
+      'Qiv', 'Sxv', 'Spv', 'Ov', 'Nv', 'Tt', 'Ut', 'Dt', 'Tet', 'Qtet', 'Sxtet', 
+      'Sptet', 'Oct', 'Non', 'Dect', 'Ude', 'Dude', 'Trede', 'Quade', 'Quinde', 'Sexde', 
+      'Sepde', 'Octde', 'Nonde', 'Vg', 'Uvg', 'Dvg', 'Tvg', 'Qavg', 'Qivg', 'Sxvg', 
+      'Spvg', 'Ovg', 'Nvg', 'Ttg', 'Utg', 'Dtg', 'Tttg', 'Qatg', 'Qitg', 'Sxtg', 
+      'Sptg', 'Octg', 'Ntg', 'Qag', 'Uqag', 'Duqag', 'Teqag', 'Quaqag', 'Quiqag', 
+      'Sexag', 'Septqag', 'Octqag', 'Nonqag', 'Cn', 'Ucn', 'Dcn', 'Tcn', 'Qacn', 
+      'Qicn', 'Sxcn', 'Spcn', 'Ocn', 'Ncn', 'Decn', 'Udecn', 'Dudecn', 'Tredecn', 
+      'QuaDecn', 'QuiDecn', 'Sexdecn', 'Septdecn', 'Octdecn', 'Nonidecn', 'Stg', 
+      'Ustg', 'Dstg', 'Tstg', 'Qastg', 'Qistg', 'Sxstg', 'Spstg', 'Ostg', 'Nstg', 
+      'Dtg', 'Udtg', 'Dudtg', 'Trdtg', 'Quadtg', 'Quidtg', 'Sextg', 'Septtg', 'Octtg', 
+      'Nontg', 'Qig', 'Unqig', 'Duqig', 'Teqig', 'Quaqig', 'Quinqig', 'Sexqig', 
+      'Septqig', 'Octqig', 'Nonqig', 'Ctg', 'Unctg', 'Ductg', 'Trectg', 'Quaactg', 
+      'Quinctg', 'Sextg', 'Septctg', 'Octctg', 'Nonctg', 'Qag', 'Unqag', 'Duqag', 
+      'Teqag', 'Quaaqag', 'Quinqag', 'Sexqag', 'Septenqag', 'Octenqag', 'Nonenqag', 
+      'Quing', 'Unquing', 'Duquing', 'Tequing', 'Quaaquing', 'Quin', 'Sexquing', 
+      'Septquing', 'Octquing', 'Nonquing', 'Sxg', 'Unsxg', 'Dusxg', 'Tesxg', 'Quaasxg', 
+      'Quinsxg', 'Sexsxg', 'Septensxg', 'Octensxg', 'Nonensxg'
+    ];
   
-    if (num >= 1000000000000000) {
-      output = (num / 1000000000000000).toFixed(2) + "q";  // Quadrillions
-    } else if (num >= 1000000000000) {
-      output = (num / 1000000000000).toFixed(2) + "t";  // Trillions
-    } else if (num >= 1000000000) {
-      output = (num / 1000000000).toFixed(2) + "b";  // Billions
-    } else if (num >= 1000000) {
-      output = (num / 1000000).toFixed(2) + "m";  // Millions
-    } else if (num >= 1000) {
-      output = (num / 1000).toFixed(2) + "k";  // Thousands
-    } else {
-      output = num.toString();
-    }
+    let output;
+    let unit = Math.floor(Math.log10(num) / 3) * 3;
+    output = (num / ('1e'+unit)).toFixed(2) + units[unit / 3];
   
     if (isNegative) {
       output = "-" + output;
@@ -2239,6 +1958,8 @@ function formatNumber(num) {
   
     return output;
   }
+  
+  
   
   function formatNumberdec(num) {
     let isNegative = false;
@@ -2281,8 +2002,6 @@ function prestige() {
           let newGoldenFlags = Math.round((invade.upgrades/25)**4)
           resources.goldenFlags = resources.goldenFlags + newGoldenFlags;
 
-        console.log('game presitged for: ' + newGoldenFlags + ' golden flags');
-        console.log('total golden flags: ' + resources.goldenFlags);
         resources.score = 0;
         resources.money = 0;
         resources.reputation = 0;
@@ -2293,8 +2012,14 @@ function prestige() {
         replenisher.upgrades = 0;
         replenisher.costElement.textContent = formatNumber(replenisher.upgradeCost);
 
+        let exludedUpgrades = ['heaven', 'hell', 'equilibrium','speedflagger'];
 
         for (let unit of gameUnitsArray) {
+            
+            if (exludedUpgrades.includes(unit.name)) {
+                continue;
+            }
+
             unit.upgrades = 0;
         
             if (unit.upgradeDiv) {
@@ -2305,9 +2030,10 @@ function prestige() {
                 unit.upgradeDivElement.style.display = 'none';
             }
         }
+
         document.getElementById('sales-div').style.display = 'none';
         document.getElementById('invade-div').style.display = 'none';
-        prestigeButton.style.display = 'none';
+        prestigeButton.style.display = 'flex';
         document.getElementById('money').style.display = 'none';
         document.getElementById('score').style.display = 'none';
         document.getElementById('reputation').style.display = 'none';
@@ -2330,5 +2056,7 @@ window.addEventListener('load', function() {
     loadGame();
     startGame();
     gameLoop();
+    fetchAndLog();
+
 });
 });
